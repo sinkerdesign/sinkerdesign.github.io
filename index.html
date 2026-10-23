@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sinker Design — Full-Stack Team Resume</title>
-<meta name="description" content="Sinker Design — تیم فول‌استک طراحی و توسعه وب، هوش مصنوعی، UI/UX و سئو">
+<title>Sinker Design — Senior Full-Stack & AI Agent Studio</title>
+<meta name="description" content="Sinker Design — استودیو ارشد توسعه فول‌استک و ایجنت‌های هوش مصنوعی؛ طراحی و ساخت محصولات دیجیتال در سطح بین‌المللی">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#070812; --bg2:#0c0e22; --card:rgba(255,255,255,.045);
-  --stroke:rgba(255,255,255,.09); --txt:#f2f3fa; --mut:#a6a9c9;
+  --bg:#06060f; --card:rgba(255,255,255,.045); --stroke:rgba(255,255,255,.09);
+  --txt:#f3f4fb; --mut:#a8abc9;
   --a1:#7c5cff; --a2:#00e0c7; --a3:#ff5ca8; --a4:#ffb84d;
   --grad:linear-gradient(90deg,var(--a1),var(--a2),var(--a3),var(--a4),var(--a1));
 }
@@ -18,152 +18,257 @@
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--txt);font-family:'Vazirmatn',system-ui,sans-serif;overflow-x:hidden}
 .en{font-family:'Space Grotesk','Vazirmatn',sans-serif}
+::selection{background:var(--a1);color:#fff}
+#progress{position:fixed;top:0;right:0;height:3px;width:0;background:var(--grad);background-size:300% 100%;z-index:60;animation:shine 5s linear infinite}
+#glow{position:fixed;width:520px;height:520px;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle,rgba(124,92,255,.16),transparent 65%);transform:translate(-50%,-50%);transition:opacity .3s}
 #particles{position:fixed;inset:0;z-index:0;pointer-events:none}
-.orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.5;z-index:0;pointer-events:none;animation:drift 16s ease-in-out infinite alternate}
-.orb1{width:480px;height:480px;background:#3d2a9e;top:-120px;left:-100px}
-.orb2{width:420px;height:420px;background:#00584d;bottom:-140px;right:-80px;animation-delay:-6s}
-.orb3{width:260px;height:260px;background:#6e1440;top:45%;left:55%;opacity:.35;animation-delay:-11s}
-@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(70px,50px) scale(1.15)}}
-.wrap{position:relative;z-index:2;max-width:1120px;margin:0 auto;padding:0 22px}
-nav{display:flex;justify-content:space-between;align-items:center;padding:26px 0}
-.logo{font-size:24px;font-weight:900;letter-spacing:.5px}
-.logo span{background:var(--grad);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
+.orb{position:fixed;border-radius:50%;filter:blur(100px);opacity:.45;z-index:0;pointer-events:none;animation:drift 18s ease-in-out infinite alternate}
+.orb1{width:520px;height:520px;background:#3d2a9e;top:-140px;left:-120px}
+.orb2{width:460px;height:460px;background:#00584d;bottom:-160px;right:-100px;animation-delay:-7s}
+.orb3{width:280px;height:280px;background:#6e1440;top:48%;left:52%;opacity:.3;animation-delay:-12s}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(80px,55px) scale(1.16)}}
 @keyframes shine{to{background-position:300% 0}}
-nav .links{display:flex;gap:26px;color:var(--mut);font-size:15px}
+.grad{background:var(--grad);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
+.wrap{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:0 22px}
+nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:18px 22px;margin:0 -22px;backdrop-filter:blur(14px);background:rgba(6,6,15,.55);border-bottom:1px solid transparent;transition:.3s}
+nav.scrolled{border-bottom-color:var(--stroke)}
+.logo{font-size:24px;font-weight:900}
+nav .links{display:flex;gap:24px;color:var(--mut);font-size:15px}
 nav .links a{color:inherit;text-decoration:none;transition:.25s}
 nav .links a:hover{color:#fff}
-.hero{text-align:center;padding:70px 0 40px}
-.badge{display:inline-block;padding:7px 18px;border:1px solid var(--stroke);border-radius:99px;background:var(--card);color:var(--a2);font-size:13.5px;font-weight:600;animation:fadeDown .8s ease both}
-.hero h1{font-size:clamp(46px,9vw,96px);font-weight:900;line-height:1.15;margin:22px 0 6px;animation:fadeDown .9s .1s ease both}
-.hero h1 .grad{background:var(--grad);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
+.hero{text-align:center;padding:76px 0 30px}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border:1px solid var(--stroke);border-radius:99px;background:var(--card);font-size:13.5px;font-weight:600;color:#dfe2ff;animation:fadeDown .8s ease both}
+.dot{width:8px;height:8px;border-radius:50%;background:#2ee06f;box-shadow:0 0 10px #2ee06f;animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.hero h1{font-size:clamp(48px,9.5vw,102px);font-weight:900;line-height:1.12;margin:24px 0 4px;animation:fadeDown .9s .1s ease both}
 .hero .role{font-size:clamp(19px,3.4vw,30px);color:var(--mut);min-height:46px;animation:fadeDown .9s .2s ease both}
 .hero .role b{color:#fff}
 .caret{display:inline-block;width:3px;height:1em;background:var(--a2);vertical-align:-2px;animation:blink .8s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
-.hero p.desc{max-width:640px;margin:16px auto 0;color:var(--mut);line-height:2;font-size:16.5px;animation:fadeDown .9s .3s ease both}
+.hero p.desc{max-width:700px;margin:18px auto 0;color:var(--mut);line-height:2.05;font-size:16.5px;animation:fadeDown .9s .3s ease both}
+.hero p.desc b{color:#e9ebff}
 @keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
-.cta{margin-top:32px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeDown .9s .4s ease both}
-.btn{padding:13px 30px;border-radius:14px;font-weight:800;font-size:15.5px;text-decoration:none;transition:.25s;border:1px solid transparent}
+.cta{margin-top:34px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeDown .9s .4s ease both}
+.btn{padding:14px 32px;border-radius:14px;font-weight:800;font-size:15.5px;text-decoration:none;transition:.25s;border:1px solid transparent;display:inline-block}
 .btn-main{background:linear-gradient(90deg,var(--a1),var(--a3));color:#fff;box-shadow:0 12px 34px rgba(124,92,255,.4)}
-.btn-main:hover{transform:translateY(-3px);box-shadow:0 18px 44px rgba(255,92,168,.45)}
+.btn-main:hover{transform:translateY(-3px);box-shadow:0 18px 46px rgba(255,92,168,.45)}
 .btn-ghost{background:var(--card);border-color:var(--stroke);color:#fff}
 .btn-ghost:hover{transform:translateY(-3px);border-color:var(--a2)}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:56px 0 10px}
-.stat{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:24px 10px;text-align:center;backdrop-filter:blur(10px);transition:.3s}
+.marquee{margin:58px 0 6px;border-block:1px solid var(--stroke);padding:16px 0;overflow:hidden;direction:ltr;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.mq-track{display:flex;gap:44px;width:max-content;animation:mq 26s linear infinite;font-family:'Space Grotesk';font-weight:700;font-size:17px;color:#c9ccf2;white-space:nowrap}
+.mq-track span i{font-style:normal;color:var(--a2);margin-left:44px}
+@keyframes mq{to{transform:translateX(-50%)}}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:44px 0 8px}
+.stat{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:26px 10px;text-align:center;backdrop-filter:blur(10px);transition:.3s}
 .stat:hover{transform:translateY(-5px);border-color:rgba(0,224,199,.5)}
-.stat .num{font-size:36px;font-weight:900}
+.stat .num{font-size:38px;font-weight:900}
 .stat .lbl{color:var(--mut);font-size:14px;margin-top:4px}
-section{padding:64px 0 10px}
+section{padding:66px 0 8px}
 .sec-head{text-align:center;margin-bottom:38px}
-.sec-head h2{font-size:clamp(28px,5vw,42px);font-weight:900}
-.sec-head h2 .grad{background:var(--grad);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
-.sec-head p{color:var(--mut);margin-top:8px}
+.sec-head .kicker{color:var(--a2);font-weight:800;font-size:13.5px;letter-spacing:.5px}
+.sec-head h2{font-size:clamp(28px,5vw,42px);font-weight:900;margin-top:6px}
+.sec-head p{color:var(--mut);margin-top:10px;line-height:1.9}
 .reveal{opacity:0;transform:translateY(34px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
 .reveal.in{opacity:1;transform:none}
+.manifesto{max-width:820px;margin:0 auto;text-align:center;font-size:clamp(19px,3vw,26px);line-height:2.1;font-weight:600}
+.manifesto .hl{color:#fff;border-bottom:3px solid var(--a3)}
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px}
+.pillar{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:26px 22px;transition:.3s}
+.pillar:hover{transform:translateY(-5px);border-color:rgba(124,92,255,.55)}
+.pillar .n{font-family:'Space Grotesk';font-size:14px;color:var(--a2);font-weight:700}
+.pillar h3{margin:10px 0 8px;font-size:18.5px}
+.pillar p{color:var(--mut);font-size:14.5px;line-height:1.95}
 .skills{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .skill{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:22px 24px;backdrop-filter:blur(10px);transition:.3s;position:relative;overflow:hidden}
-.skill::before{content:'';position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:var(--c,#7c5cff)}
+.skill::before{content:'';position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:var(--c)}
 .skill:hover{transform:translateY(-4px);border-color:var(--c)}
 .skill .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .skill .name{font-weight:800;font-size:18px}
 .skill .name small{display:block;color:var(--mut);font-weight:400;font-size:13px;margin-top:2px}
 .skill .pct{font-size:26px;font-weight:900;color:var(--c)}
 .bar{height:11px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
-.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--c),#fff3);transition:width 1.4s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 16px var(--c)}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--c),rgba(255,255,255,.25));transition:width 1.5s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 16px var(--c)}
 .rings{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px}
 .ring-card{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:22px 6px;text-align:center;transition:.3s}
 .ring-card:hover{transform:translateY(-5px)}
 .ring{width:104px;height:104px;margin:0 auto 10px;transform:rotate(-90deg)}
 .ring circle{fill:none;stroke-width:9;stroke-linecap:round}
 .ring .bgc{stroke:rgba(255,255,255,.08)}
-.ring .fgc{stroke:var(--c);stroke-dasharray:264;stroke-dashoffset:264;transition:stroke-dashoffset 1.5s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 7px var(--c))}
+.ring .fgc{stroke:var(--c);stroke-dasharray:264;stroke-dashoffset:264;transition:stroke-dashoffset 1.6s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 7px var(--c))}
 .ring-num{font-size:21px;font-weight:900;margin-top:-70px;margin-bottom:44px;position:relative}
 .ring-card .rname{font-weight:700;font-size:15.5px}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.card{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:28px 20px;transition:.35s;transform-style:preserve-3d;will-change:transform}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:28px 22px;transition:.35s;transform-style:preserve-3d;will-change:transform}
 .card:hover{border-color:rgba(124,92,255,.6)}
 .card .ico{font-size:34px;margin-bottom:14px}
 .card h3{font-size:18px;margin-bottom:8px}
 .card p{color:var(--mut);font-size:14.5px;line-height:1.95}
-footer{text-align:center;padding:70px 0 46px;color:var(--mut)}
-footer .big{font-size:clamp(26px,5vw,40px);font-weight:900;color:#fff;margin-bottom:12px}
-footer .sig{margin-top:26px;font-size:14px}
+.works{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.work{border-radius:22px;padding:30px 24px;border:1px solid var(--stroke);position:relative;overflow:hidden;transition:.35s;min-height:210px;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(160deg,var(--w1),var(--w2))}
+.work:hover{transform:translateY(-6px) scale(1.01)}
+.work .tag{position:absolute;top:20px;inset-inline-start:22px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.25);padding:5px 13px;border-radius:99px;font-size:12.5px;font-weight:700}
+.work h3{font-size:20px;margin-bottom:6px}
+.work p{font-size:14px;line-height:1.9;color:rgba(255,255,255,.85)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.step{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:26px 20px;position:relative;transition:.3s}
+.step:hover{transform:translateY(-5px)}
+.step .sn{font-family:'Space Grotesk';font-size:42px;font-weight:700;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.35)}
+.step h3{margin:12px 0 7px;font-size:17px}
+.step p{color:var(--mut);font-size:14px;line-height:1.9}
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.quote{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:26px 22px;transition:.3s}
+.quote:hover{transform:translateY(-5px);border-color:rgba(0,224,199,.5)}
+.quote .stars{color:var(--a4);letter-spacing:3px;margin-bottom:12px}
+.quote p{line-height:2;font-size:15px}
+.quote .who{margin-top:14px;color:var(--mut);font-size:13.5px}
+.faq{max-width:760px;margin:0 auto}
+.qa{background:var(--card);border:1px solid var(--stroke);border-radius:16px;margin-bottom:12px;overflow:hidden}
+.qa button{width:100%;background:none;border:none;color:#fff;font-family:inherit;font-size:16px;font-weight:800;text-align:right;padding:19px 22px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.qa .ans{max-height:0;overflow:hidden;transition:max-height .45s ease;color:var(--mut);line-height:2;font-size:14.5px}
+.qa .ans div{padding:0 22px 19px}
+.qa.open .ans{max-height:220px}
+.qa .arr{transition:.35s;color:var(--a2)}
+.qa.open .arr{transform:rotate(180deg)}
+footer{text-align:center;padding:74px 0 48px;color:var(--mut)}
+footer .big{font-size:clamp(26px,5vw,42px);font-weight:900;color:#fff;margin-bottom:12px;line-height:1.5}
+footer .sig{margin-top:28px;font-size:14px}
 footer .sig b{color:#fff}
-@media(max-width:860px){.skills{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.rings{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:repeat(2,1fr)}nav .links{display:none}}
-@media(max-width:520px){.cards{grid-template-columns:1fr}}
+#topBtn{position:fixed;bottom:24px;inset-inline-start:24px;z-index:55;width:48px;height:48px;border-radius:14px;border:1px solid var(--stroke);background:rgba(20,20,40,.8);backdrop-filter:blur(8px);color:#fff;font-size:19px;cursor:pointer;opacity:0;pointer-events:none;transition:.3s}
+#topBtn.show{opacity:1;pointer-events:auto}
+@media(max-width:900px){.cards,.works,.quotes{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:repeat(2,1fr)}.pillars{grid-template-columns:1fr}}
+@media(max-width:860px){.skills{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.rings{grid-template-columns:repeat(2,1fr)}nav .links{display:none}}
+@media(max-width:560px){.cards,.works,.quotes,.steps{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+<div id="progress"></div><div id="glow"></div>
 <canvas id="particles"></canvas>
 <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
 <div class="wrap">
-  <nav>
-    <div class="logo en">Sinker <span>Design</span></div>
+  <nav id="nav">
+    <div class="logo en">Sinker <span class="grad">Design</span></div>
     <div class="links">
-      <a href="#skills">مهارت‌ها</a><a href="#services">خدمات</a><a href="https://t.me/samelike" target="_blank" rel="noopener">ارتباط با ما</a>
+      <a href="#skills">مهارت‌ها</a><a href="#services">تخصص‌ها</a><a href="#works">نمونه‌کارها</a><a href="#process">روند کار</a>
+      <a href="https://t.me/samelike" target="_blank" rel="noopener">ارتباط با ما</a>
     </div>
   </nav>
 
   <header class="hero">
-    <div class="badge">✦ تیم طراحی و توسعه فول‌استک</div>
+    <div class="badge"><span class="dot"></span> آماده همکاری در پروژه‌های بین‌المللی — Worldwide, Remote</div>
     <h1><span class="en grad">Sinker Design</span></h1>
-    <div class="role">ما <b id="typed"></b><span class="caret"></span> می‌سازیم</div>
-    <p class="desc">از ایده تا محصول نهایی: طراحی رابط کاربری چشمگیر، توسعه فرانت‌اند و بک‌اند، یکپارچه‌سازی هوش مصنوعی و سئویی که دیده‌تان می‌کند. ما کد نمی‌زنیم — تجربه می‌سازیم.</p>
+    <div class="role">معماری و ساختِ <b id="typed"></b><span class="caret"></span></div>
+    <p class="desc">ما یک استودیوی ارشدِ توسعه محصولیم؛ جایی که <b>مهندسی فول‌استک</b>، <b>ایجنت‌های هوش مصنوعی</b> و <b>طراحی در کلاس جهانی</b> به هم می‌رسند. محصولی که می‌سازیم فقط کار نمی‌کند — در بازار شلوغِ امروز، دیده می‌شود، رشد می‌کند و می‌فروشد.</p>
     <div class="cta">
-      <a class="btn btn-main" href="#skills">دیدن مهارت‌ها</a>
-      <a class="btn btn-ghost" href="https://t.me/samelike" target="_blank" rel="noopener">✈️ ارتباط با ما</a>
+      <a class="btn btn-main" href="https://t.me/samelike" target="_blank" rel="noopener">✈️ شروع پروژه</a>
+      <a class="btn btn-ghost" href="#works">دیدن نمونه‌کارها</a>
     </div>
+    <div class="marquee"><div class="mq-track" id="mq"></div></div>
     <div class="stats">
-      <div class="stat"><div class="num en"><span class="count" data-to="7">0</span>+</div><div class="lbl">مهارت تخصصی اصلی</div></div>
-      <div class="stat"><div class="num en"><span class="count" data-to="60">0</span>+</div><div class="lbl">پروژه تحویل‌شده</div></div>
-      <div class="stat"><div class="num en"><span class="count" data-to="40">0</span>+</div><div class="lbl">مشتری راضی</div></div>
-      <div class="stat"><div class="num en"><span class="count" data-to="100">0</span>%</div><div class="lbl">ریسپانسیو و بهینه</div></div>
+      <div class="stat"><div class="num en"><span class="count" data-to="8">0</span>+</div><div class="lbl">سال تجربه تخصصی</div></div>
+      <div class="stat"><div class="num en"><span class="count" data-to="120">0</span>+</div><div class="lbl">پروژه تحویل‌شده</div></div>
+      <div class="stat"><div class="num en"><span class="count" data-to="80">0</span>+</div><div class="lbl">مشتری و همکار</div></div>
+      <div class="stat"><div class="num en"><span class="count" data-to="15">0</span>+</div><div class="lbl">کشور — پروژه ریموت</div></div>
     </div>
   </header>
 
+  <section>
+    <div class="manifesto reveal">در سطح ارشد، کد فقط ابزار است؛ خروجیِ واقعی، <span class="hl">محصولی است که کاربر را نگه می‌دارد</span> و کسب‌وکار را جلو می‌اندازد. ما با همین نگاه طراحی می‌کنیم، می‌سازیم و رشد می‌دهیم.</div>
+    <div class="pillars">
+      <div class="pillar reveal"><div class="n en">01 — ENGINEER</div><h3>مهندسی بی‌نقص</h3><p>معماری مقیاس‌پذیر، کد تمیز و پرفورمنس بالا؛ استانداردی که در تیم‌های بین‌المللی انتظار می‌رود، نه کمتر.</p></div>
+      <div class="pillar reveal"><div class="n en">02 — AUTOMATE</div><h3>اتوماسیون هوشمند</h3><p>ایجنت‌های AI که کارهای تکراری تیم شما را خودکار می‌کنند و هزینه اجرا را به‌طرز محسوسی پایین می‌آورند.</p></div>
+      <div class="pillar reveal"><div class="n en">03 — GROW</div><h3>رشد قابل اندازه‌گیری</h3><p>سئو و تجربه کاربریِ داده‌محور؛ ترافیکی که به مشتری تبدیل می‌شود، نه فقط عدد روی نمودار.</p></div>
+    </div>
+  </section>
+
   <section id="skills">
-    <div class="sec-head reveal"><h2>مهارت‌های <span class="grad">تخصصی</span></h2><p>ترکیبی که یک محصول کامل را از صفر تا صد می‌سازد</p></div>
+    <div class="sec-head reveal"><div class="kicker en">CORE EXPERTISE</div><h2>مهارت‌های <span class="grad">ارشد</span></h2><p>هشت تخصص عمیق، یک تیم — تسلط در سطحی که پروژه‌های بین‌المللی طلب می‌کنند</p></div>
     <div class="skills">
-      <div class="skill reveal" style="--c:#f7df1e"><div class="top"><div class="name en">JavaScript<small>اینترکشن، انیمیشن و منطق فرانت‌اند</small></div><div class="pct en"><span class="count" data-to="92">0</span>%</div></div><div class="bar"><i data-w="92"></i></div></div>
-      <div class="skill reveal" style="--c:#00e0c7"><div class="top"><div class="name en">Artificial Intelligence<small>چت‌بات، اتوماسیون و فیچرهای هوشمند</small></div><div class="pct en"><span class="count" data-to="88">0</span>%</div></div><div class="bar"><i data-w="88"></i></div></div>
-      <div class="skill reveal" style="--c:#ff6b35"><div class="top"><div class="name en">HTML<small>ساختار تمیز، سمنتیک و دسترس‌پذیر</small></div><div class="pct en"><span class="count" data-to="96">0</span>%</div></div><div class="bar"><i data-w="96"></i></div></div>
-      <div class="skill reveal" style="--c:#4da3ff"><div class="top"><div class="name en">CSS<small>انیمیشن، گرادیان و طراحی خیره‌کننده</small></div><div class="pct en"><span class="count" data-to="94">0</span>%</div></div><div class="bar"><i data-w="94"></i></div></div>
-      <div class="skill reveal" style="--c:#a074c4"><div class="top"><div class="name en">PHP<small>بک‌اند، وردپرس و ووکامرس</small></div><div class="pct en"><span class="count" data-to="85">0</span>%</div></div><div class="bar"><i data-w="85"></i></div></div>
-      <div class="skill reveal" style="--c:#ff5ca8"><div class="top"><div class="name en">UI / UX Design<small>تجربه‌ای که کاربر عاشقش می‌شود</small></div><div class="pct en"><span class="count" data-to="90">0</span>%</div></div><div class="bar"><i data-w="90"></i></div></div>
+      <div class="skill reveal" style="--c:#ff6b35"><div class="top"><div class="name en">HTML<small>معماری سمنتیک، دسترس‌پذیری و استانداردهای وب مدرن</small></div><div class="pct en"><span class="count" data-to="98">0</span>%</div></div><div class="bar"><i data-w="98"></i></div></div>
+      <div class="skill reveal" style="--c:#4da3ff"><div class="top"><div class="name en">CSS<small>انیمیشن‌های سینمایی، موشن‌دیزاین و رابط‌های خیره‌کننده</small></div><div class="pct en"><span class="count" data-to="97">0</span>%</div></div><div class="bar"><i data-w="97"></i></div></div>
+      <div class="skill reveal" style="--c:#f7df1e"><div class="top"><div class="name en">JavaScript<small>اپلیکیشن‌های پیچیده، تعامل real-time و پرفورمنس در بالاترین سطح</small></div><div class="pct en"><span class="count" data-to="95">0</span>%</div></div><div class="bar"><i data-w="95"></i></div></div>
+      <div class="skill reveal" style="--c:#00e0c7"><div class="top"><div class="name en">Artificial Intelligence<small>یکپارچه‌سازی مدل‌های زبانی و ساخت فیچرهای هوشمند محصول</small></div><div class="pct en"><span class="count" data-to="94">0</span>%</div></div><div class="bar"><i data-w="94"></i></div></div>
+      <div class="skill reveal" style="--c:#ff5ca8"><div class="top"><div class="name en">AI Agent Development<small>ایجنت‌نویسی حرفه‌ای: ایجنت‌های خودران، چندمرحله‌ای و tool-calling</small></div><div class="pct en"><span class="count" data-to="93">0</span>%</div></div><div class="bar"><i data-w="93"></i></div></div>
+      <div class="skill reveal" style="--c:#c77dff"><div class="top"><div class="name en">UI / UX Design<small>طراحی محصول داده‌محور؛ تجربه‌ای که نرخ تبدیل را جابه‌جا می‌کند</small></div><div class="pct en"><span class="count" data-to="93">0</span>%</div></div><div class="bar"><i data-w="93"></i></div></div>
+      <div class="skill reveal" style="--c:#ffb84d"><div class="top"><div class="name en">SEO<small>سئوی تکنیکال و استراتژی محتوا برای بازار داخلی و بین‌المللی</small></div><div class="pct en"><span class="count" data-to="91">0</span>%</div></div><div class="bar"><i data-w="91"></i></div></div>
+      <div class="skill reveal" style="--c:#a074c4"><div class="top"><div class="name en">PHP<small>بک‌اند قدرتمند، API، وردپرس و فروشگاه‌های ووکامرسی پرفروش</small></div><div class="pct en"><span class="count" data-to="90">0</span>%</div></div><div class="bar"><i data-w="90"></i></div></div>
     </div>
     <div class="rings">
-      <div class="ring-card reveal" style="--c:#ffb84d"><svg class="ring" viewBox="0 0 104 104"><circle class="bgc" cx="52" cy="52" r="42"/><circle class="fgc" data-p="87" cx="52" cy="52" r="42"/></svg><div class="ring-num en"><span class="count" data-to="87">0</span>%</div><div class="rname en">SEO</div></div>
-      <div class="ring-card reveal" style="--c:#7c5cff"><svg class="ring" viewBox="0 0 104 104"><circle class="bgc" cx="52" cy="52" r="42"/><circle class="fgc" data-p="92" cx="52" cy="52" r="42"/></svg><div class="ring-num en"><span class="count" data-to="92">0</span>%</div><div class="rname en">JavaScript</div></div>
-      <div class="ring-card reveal" style="--c:#00e0c7"><svg class="ring" viewBox="0 0 104 104"><circle class="bgc" cx="52" cy="52" r="42"/><circle class="fgc" data-p="88" cx="52" cy="52" r="42"/></svg><div class="ring-num en"><span class="count" data-to="88">0</span>%</div><div class="rname en">AI</div></div>
-      <div class="ring-card reveal" style="--c:#ff5ca8"><svg class="ring" viewBox="0 0 104 104"><circle class="bgc" cx="52" cy="52" r="42"/><circle class="fgc" data-p="90" cx="52" cy="52" r="42"/></svg><div class="ring-num en"><span class="count" data-to="90">0</span>%</div><div class="rname en">UI / UX</div></div>
+      <div class="ring-card reveal" style="--c:#ff5ca8"><svg class="ring" viewBox="0 0 104 104"><circle class="bgc" cx="52" cy="52" r="42"/><circle class="fgc" data-p="93" cx="52" cy="52" r="42"/></svg><div class="ring-num en"><span class="count" data-to="93">0</span>%</div><div class="rname en">AI Agents</div></div>
+      <div class="ring-card reveal" style="--c:#00e0c7"><svg class="ring" viewBox="0 0 104 104"><circle class="bgc" cx="52" cy="52" r="42"/><circle class="fgc" data-p="94" cx="52" cy="52" r="42"/></svg><div class="ring-num en"><span class="count" data-to="94">0</span>%</div><div class="rname en">AI</div></div>
+      <div class="ring-card reveal" style="--c:#f7df1e"><svg class="ring" viewBox="0 0 104 104"><circle class="bgc" cx="52" cy="52" r="42"/><circle class="fgc" data-p="95" cx="52" cy="52" r="42"/></svg><div class="ring-num en"><span class="count" data-to="95">0</span>%</div><div class="rname en">JavaScript</div></div>
+      <div class="ring-card reveal" style="--c:#ffb84d"><svg class="ring" viewBox="0 0 104 104"><circle class="bgc" cx="52" cy="52" r="42"/><circle class="fgc" data-p="91" cx="52" cy="52" r="42"/></svg><div class="ring-num en"><span class="count" data-to="91">0</span>%</div><div class="rname en">SEO</div></div>
     </div>
   </section>
 
   <section id="services">
-    <div class="sec-head reveal"><h2>چی <span class="grad">می‌سازیم؟</span></h2><p>هر چیزی که یک کسب‌وکار آنلاین لازم دارد — زیر یک سقف</p></div>
+    <div class="sec-head reveal"><div class="kicker en">WHAT WE DO BEST</div><h2>تخصص‌های <span class="grad">کلیدی</span></h2><p>شش ستون که یک محصول دیجیتال کامل روی آن‌ها بنا می‌شود</p></div>
     <div class="cards">
-      <div class="card reveal tilt"><div class="ico">💻</div><h3>توسعه وب فول‌استک</h3><p>از فرانت‌اند خیره‌کننده تا بک‌اند سریع و امن با JavaScript و PHP — سریع، مقیاس‌پذیر و تمیز.</p></div>
-      <div class="card reveal tilt"><div class="ico">🤖</div><h3>هوش مصنوعی</h3><p>چت‌بات هوشمند، تولید محتوای خودکار و فیچرهای AI که محصولتان را یک سر و گردن بالاتر می‌برد.</p></div>
-      <div class="card reveal tilt"><div class="ico">🎨</div><h3>طراحی UI / UX</h3><p>رابط‌هایی که هم زیباست هم می‌فروشد؛ طراحی مبتنی بر رفتار کاربر، نه سلیقه لحظه‌ای.</p></div>
-      <div class="card reveal tilt"><div class="ico">🚀</div><h3>سئو و رشد</h3><p>سئوی تکنیکال و محتوایی که شما را به صفحه اول گوگل می‌رساند و آنجا نگه می‌دارد.</p></div>
+      <div class="card reveal tilt"><div class="ico">💻</div><h3>توسعه فول‌استک ارشد</h3><p>از فرانت‌اند پیکسل‌پرفکت تا بک‌اند مقیاس‌پذیر و امن — JavaScript و PHP در بالاترین سطح اجرایی.</p></div>
+      <div class="card reveal tilt"><div class="ico">🤖</div><h3>ایجنت‌های هوش مصنوعی</h3><p>طراحی و ایجنت‌نویسی سیستم‌های خودران: پشتیبانی مشتری، تولید محتوا، تحلیل داده و اتوماسیون فرایندها.</p></div>
+      <div class="card reveal tilt"><div class="ico">🧠</div><h3>یکپارچه‌سازی AI</h3><p>اتصال مدل‌های زبانی به محصول شما؛ چت‌بات، جستجوی هوشمند و دستیارهای اختصاصی برندتان.</p></div>
+      <div class="card reveal tilt"><div class="ico">🎨</div><h3>طراحی UI / UX</h3><p>رابط‌هایی در کلاس جهانی که هم زیباست، هم شهودی، هم می‌فروشد — طراحی بر پایه رفتار واقعی کاربر.</p></div>
+      <div class="card reveal tilt"><div class="ico">🛒</div><h3>فروشگاه اینترنتی</h3><p>وردپرس و ووکامرسِ سریع، امن و بهینه برای فروش؛ از برندهای داخلی تا فروش بین‌المللی.</p></div>
+      <div class="card reveal tilt"><div class="ico">🚀</div><h3>سئو و رشد بین‌المللی</h3><p>استراتژی سئویی که شما را در گوگل — در هر بازاری — به صفحه اول می‌رساند و آنجا تثبیت می‌کند.</p></div>
+    </div>
+  </section>
+
+  <section id="works">
+    <div class="sec-head reveal"><div class="kicker en">SELECTED WORK</div><h2>نمونه‌کارهای <span class="grad">منتخب</span></h2><p>هر پروژه، یک مسئله واقعی کسب‌وکار — و یک نتیجه قابل سنجش</p></div>
+    <div class="works">
+      <div class="work reveal" style="--w1:#23306e;--w2:#0d5c50"><span class="tag en">E-Commerce</span><h3>فروشگاه برند Sinker</h3><p>طراحی و توسعه فروشگاه محصولات گرانیتی با تجربه خرید روان، سئوی محصول‌محور و محتوای بصری اختصاصی.</p></div>
+      <div class="work reveal" style="--w1:#4a1160;--w2:#8c1d5c"><span class="tag en">AI Agents</span><h3>سیستم ایجنت‌های هوشمند</h3><p>ایجنت‌های خودران برای اتوماسیون عملیات روزانه — از پاسخ‌گویی و تولید محتوا تا گزارش‌گیری خودکار.</p></div>
+      <div class="work reveal" style="--w1:#6e4411;--w2:#23306e"><span class="tag en">Product Sites</span><h3>وب‌سایت‌های محصول جهانی</h3><p>لندینگ و وب‌سایت‌های شرکتی با موشن‌دیزاین، پرفورمنس بالا و استاندارد ارائه در سطح بین‌المللی.</p></div>
+    </div>
+  </section>
+
+  <section id="process">
+    <div class="sec-head reveal"><div class="kicker en">HOW WE WORK</div><h2>روند <span class="grad">همکاری</span></h2><p>شفاف، مرحله‌به‌مرحله، بدون غافلگیری</p></div>
+    <div class="steps">
+      <div class="step reveal"><div class="sn en">01</div><h3>کشف و استراتژی</h3><p>هدف کسب‌وکار، مخاطب و رقبا را دقیق می‌شناسیم و نقشه راه محصول را می‌چینیم.</p></div>
+      <div class="step reveal"><div class="sn en">02</div><h3>طراحی تجربه</h3><p>وایرفریم تا دیزاین نهایی؛ هر صفحه با هدف مشخص و قابل دفاع طراحی می‌شود.</p></div>
+      <div class="step reveal"><div class="sn en">03</div><h3>توسعه و AI</h3><p>پیاده‌سازی فول‌استک و ایجنت‌های هوشمند، با بازبینی مداوم و تست روی هر مرحله.</p></div>
+      <div class="step reveal"><div class="sn en">04</div><h3>لانچ و رشد</h3><p>انتشار، سئو و بهینه‌سازی مداوم؛ محصول بعد از لانچ تازه شروع می‌کند به رشد.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head reveal"><div class="kicker en">CLIENT WORDS</div><h2>حرف <span class="grad">مشتری‌ها</span></h2></div>
+    <div class="quotes">
+      <div class="quote reveal"><div class="stars">★★★★★</div><p>«سطح کارشان با تیم‌های خارجی که قبلاً باهاشان کار کرده بودیم برابری می‌کند؛ هم در طراحی، هم در تحویل سر وقت.»</p><div class="who">مدیر محصول — استارتاپ اروپایی</div></div>
+      <div class="quote reveal"><div class="stars">★★★★★</div><p>«ایجنت هوش مصنوعی‌ای که ساختند، هر هفته ساعت‌ها کار تکراری تیم ما را حذف کرده. بهترین سرمایه‌گذاری امسال‌مان بود.»</p><div class="who">مدیر عملیات — کسب‌وکار آنلاین</div></div>
+      <div class="quote reveal"><div class="stars">★★★★★</div><p>«فروشگاه ما بعد از بازطراحی و سئو، هم سریع‌تر شد هم فروشش چند برابر. یک تیم، همه تخصص‌ها.»</p><div class="who">بنیان‌گذار — برند Sinker</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head reveal"><div class="kicker en">FAQ</div><h2>سؤال‌های <span class="grad">رایج</span></h2></div>
+    <div class="faq">
+      <div class="qa reveal"><button>پروژه خارج از ایران هم قبول می‌کنید؟ <span class="arr">▾</span></button><div class="ans"><div>بله؛ کاملاً ریموت و با روند ارتباطی شفاف کار می‌کنیم و تجربه همکاری با مشتری در چند کشور را داریم.</div></div></div>
+      <div class="qa reveal"><button>ایجنت هوش مصنوعی دقیقاً چه کاری برای ما می‌کند؟ <span class="arr">▾</span></button><div class="ans"><div>ایجنت‌ها کارهای چندمرحله‌ای را خودران انجام می‌دهند: پاسخ به مشتری، تولید و انتشار محتوا، جمع‌آوری و تحلیل داده و اتصال به ابزارهای فعلی‌تان.</div></div></div>
+      <div class="qa reveal"><button>از کجا شروع کنیم؟ <span class="arr">▾</span></button><div class="ans"><div>کافی است از دکمه «ارتباط با ما» در تلگرام پیام بدهید؛ ایده‌تان را می‌شنویم و نقشه راه و برآورد شفاف می‌دهیم.</div></div></div>
     </div>
   </section>
 
   <footer id="contact">
-    <div class="big reveal">یه ایده داری؟ <span class="en" style="background:var(--grad);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite">Sinker Design</span> می‌سازدش.</div>
-    <p class="reveal">از یک لندینگ ساده تا یک محصول کامل فول‌استک با هوش مصنوعی.</p>
+    <div class="big reveal">پروژه بعدی‌تان می‌تواند همان کاری باشد<br>که بازار درباره‌اش حرف می‌زند.</div>
+    <p class="reveal">از یک ایده خام تا محصولی در سطح جهانی — کنار شما هستیم.</p>
     <div class="cta reveal"><a class="btn btn-main" href="https://t.me/samelike" target="_blank" rel="noopener">✈️ ارتباط با ما در تلگرام — <span class="en">@samelike</span></a></div>
-    <div class="sig">© 2026 <b class="en">Sinker Design</b> — Crafted with passion, powered by code.</div>
+    <div class="sig">© 2026 <b class="en">Sinker Design</b> — Senior Full-Stack & AI Agent Studio.</div>
   </footer>
 </div>
+<button id="topBtn" title="بازگشت به بالا">↑</button>
 <script>
-// Typing effect
-const words=['وب‌سایت‌های خیره‌کننده','محصولات هوشمند با AI','تجربه‌های کاربری فراموش‌نشدنی','برندهایی که دیده می‌شوند'];
+// Marquee
+const techs=['JavaScript','AI Agents','HTML5','CSS3','PHP','UI/UX','SEO','WordPress','WooCommerce','Prompt Engineering','Automation','Product Design'];
+const half=techs.map(t=>`<span>${t}<i>✦</i></span>`).join('');
+document.getElementById('mq').innerHTML=half+half;
+// Typing
+const words=['محصولات دیجیتال در کلاس جهانی','ایجنت‌های هوش مصنوعی خودران','فروشگاه‌هایی که می‌فروشند','برندهایی که در گوگل می‌درخشند'];
 let wi=0,ci=0,del=false;const tEl=document.getElementById('typed');
 (function type(){const w=words[wi];tEl.textContent=w.slice(0,ci);
- if(!del){ci++;if(ci>w.length){del=true;return setTimeout(type,1500)}}
+ if(!del){ci++;if(ci>w.length){del=true;return setTimeout(type,1600)}}
  else{ci--;if(ci===0){del=false;wi=(wi+1)%words.length}}
- setTimeout(type,del?32:68)})();
+ setTimeout(type,del?30:66)})();
 // Reveal + bars + rings + counters
 const io=new IntersectionObserver(es=>{es.forEach(e=>{if(!e.isIntersecting)return;
  e.target.classList.add('in');
@@ -171,20 +276,30 @@ const io=new IntersectionObserver(es=>{es.forEach(e=>{if(!e.isIntersecting)retur
  e.target.querySelectorAll('.fgc').forEach(c=>c.style.strokeDashoffset=264-(264*c.dataset.p/100));
  e.target.querySelectorAll('.count').forEach(runCount);
  if(e.target.classList.contains('count'))runCount(e.target);
- io.unobserve(e.target)})},{threshold:.3});
+ io.unobserve(e.target)})},{threshold:.25});
 function runCount(el){if(el._done)return;el._done=true;const to=+el.dataset.to,t0=performance.now();
- (function tick(t){const p=Math.min((t-t0)/1300,1);el.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tick)})(t0)}
+ (function tick(t){const p=Math.min((t-t0)/1400,1);el.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tick)})(t0)}
 document.querySelectorAll('.reveal,.stat,.skill,.ring-card').forEach(el=>io.observe(el));
-document.querySelectorAll('.count').forEach(el=>{if(!el.closest('.reveal,.stat,.skill,.ring-card'))io.observe(el)});
-// Tilt cards
+// Tilt
 document.querySelectorAll('.tilt').forEach(card=>{
  card.addEventListener('mousemove',e=>{const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
-  card.style.transform=`perspective(700px) rotateY(${x*14}deg) rotateX(${-y*14}deg) translateY(-4px)`});
+  card.style.transform=`perspective(700px) rotateY(${x*13}deg) rotateX(${-y*13}deg) translateY(-4px)`});
  card.addEventListener('mouseleave',()=>card.style.transform='')});
+// FAQ
+document.querySelectorAll('.qa button').forEach(b=>b.addEventListener('click',()=>{
+ const qa=b.parentElement,was=qa.classList.contains('open');
+ document.querySelectorAll('.qa').forEach(q=>q.classList.remove('open'));
+ if(!was)qa.classList.add('open')}));
+// Scroll: progress, nav, top button, glow
+const glow=document.getElementById('glow'),topBtn=document.getElementById('topBtn'),nav=document.getElementById('nav'),prog=document.getElementById('progress');
+addEventListener('scroll',()=>{const h=document.documentElement,st=h.scrollTop,mx=h.scrollHeight-h.clientHeight;
+ prog.style.width=(mx?st/mx*100:0)+'%';nav.classList.toggle('scrolled',st>10);topBtn.classList.toggle('show',st>500)},{passive:true});
+topBtn.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
+addEventListener('mousemove',e=>{glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px'},{passive:true});
 // Particles
-const cv=document.getElementById('particles'),ctx=cv.getContext('2d');let W,H,ps=[];
+const cv=document.getElementById('particles'),ctx=cv.getContext('2d');let W,H;const ps=[];
 function size(){W=cv.width=innerWidth;H=cv.height=innerHeight}size();addEventListener('resize',size);
-for(let i=0;i<70;i++)ps.push({x:Math.random()*2000,y:Math.random()*1400,r:Math.random()*1.8+.4,s:Math.random()*.35+.08,o:Math.random()*.6+.15});
+for(let i=0;i<80;i++)ps.push({x:Math.random()*2000,y:Math.random()*1400,r:Math.random()*1.8+.4,s:Math.random()*.35+.08,o:Math.random()*.6+.15});
 (function anim(){ctx.clearRect(0,0,W,H);ps.forEach(p=>{p.y-=p.s;if(p.y<-4){p.y=H+4;p.x=Math.random()*W}
  ctx.beginPath();ctx.arc(p.x%W,p.y,p.r,0,7);ctx.fillStyle=`rgba(150,160,255,${p.o})`;ctx.fill()});requestAnimationFrame(anim)})();
 </script>
