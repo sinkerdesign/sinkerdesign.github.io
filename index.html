@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,7 +31,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Vazirmatn',system-ui,san
 @keyframes shine{to{background-position:300% 0}}
 .grad{background:var(--grad);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
 .wrap{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:0 22px}
-nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px 22px;margin:0 -22px;backdrop-filter:blur(14px);background:rgba(6,6,15,.55);border-bottom:1px solid transparent;transition:border-color .5s var(--ease)}
+nav{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:16px 22px;margin:0 -22px;backdrop-filter:blur(14px);background:rgba(6,6,15,.55);border-bottom:1px solid transparent;transition:border-color .5s var(--ease)}
 nav.scrolled{border-bottom-color:var(--stroke)}
 .logo{font-size:24px;font-weight:900;white-space:nowrap}
 .logo small{display:block;font-size:10.5px;letter-spacing:2.5px;color:var(--mut);font-weight:600}
@@ -91,7 +91,8 @@ section{padding:66px 0 8px}
 .skill .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .skill .name{font-weight:800;font-size:18px}
 .skill .name small{display:block;color:var(--mut);font-weight:400;font-size:13px;margin-top:2px}
-.skill .pct{font-size:26px;font-weight:900;color:var(--c)}
+.skill .name{min-width:0}
+.skill .pct{font-size:26px;font-weight:900;color:var(--c);flex-shrink:0}
 .bar{height:11px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
 .bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--c),rgba(255,255,255,.25));transition:width 1.9s var(--ease);box-shadow:0 0 16px var(--c)}
 .rings{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px}
@@ -145,6 +146,23 @@ footer .sig b{color:#fff}
 @media(max-width:980px){.cards4{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){.cards,.works,.quotes{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:repeat(2,1fr)}.pillars{grid-template-columns:1fr}}
 @media(max-width:860px){.skills{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.rings{grid-template-columns:repeat(2,1fr)}nav .links a{display:none}nav .links a.cta-link{display:block}}
+@media(max-width:640px){
+ nav{justify-content:center;padding:12px 10px;row-gap:10px}
+ .logo{width:100%;text-align:center;font-size:22px}
+ nav .links{width:100%;justify-content:center;flex-wrap:wrap;gap:10px}
+ .langbar{flex-shrink:0}
+ .langbar button{padding:6px 11px;font-size:12.5px}
+ .hero{padding:46px 0 22px}
+ .hero h1{font-size:clamp(40px,13vw,102px)}
+ .scope{letter-spacing:1.6px;font-size:10.5px;line-height:2}
+ .hero .role{font-size:19px;min-height:58px}
+ .hero p.desc{font-size:15.5px}
+ .btn{padding:13px 24px;font-size:15px}
+ .stat .num{font-size:29px}
+ .stats{gap:10px}
+ .qa button{font-size:15px;padding:16px 18px}
+ #glow{display:none}
+}
 @media(max-width:560px){.cards,.cards4,.works,.quotes,.steps{grid-template-columns:1fr}}
 </style>
 </head>
@@ -341,7 +359,7 @@ function setLang(l){
  try{localStorage.setItem('sd-lang',l)}catch(e){}
 }
 document.querySelectorAll('.langbar button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
-try{const saved=localStorage.getItem('sd-lang');if(saved&&saved!=='fa')setLang(saved)}catch(e){}
+try{const saved=localStorage.getItem('sd-lang');setLang(saved||'en')}catch(e){setLang('en')}
 </script>
 </body>
 </html>
