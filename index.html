@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sinker Design — Full-Stack Team Resume</title>
+<meta name="description" content="Sinker Design — تیم فول‌استک طراحی و توسعه وب، هوش مصنوعی، UI/UX و سئو">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070812; --bg2:#0c0e22; --card:rgba(255,255,255,.045);
+  --stroke:rgba(255,255,255,.09); --txt:#f2f3fa; --mut:#a6a9c9;
+  --a1:#7c5cff; --a2:#00e0c7; --a3:#ff5ca8; --a4:#ffb84d;
+  --grad:linear-gradient(90deg,var(--a1),var(--a2),var(--a3),var(--a4),var(--a1));
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:'Vazirmatn',system-ui,sans-serif;overflow-x:hidden}
+.en{font-family:'Space Grotesk','Vazirmatn',sans-serif}
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.5;z-index:0;pointer-events:none;animation:drift 16s ease-in-out infinite alternate}
+.orb1{width:480px;height:480px;background:#3d2a9e;top:-120px;left:-100px}
+.orb2{width:420px;height:420px;background:#00584d;bottom:-140px;right:-80px;animation-delay:-6s}
+.orb3{width:260px;height:260px;background:#6e1440;top:45%;left:55%;opacity:.35;animation-delay:-11s}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(70px,50px) scale(1.15)}}
+.wrap{position:relative;z-index:2;max-width:1120px;margin:0 auto;padding:0 22px}
+nav{display:flex;justify-content:space-between;align-items:center;padding:26px 0}
+.logo{font-size:24px;font-weight:900;letter-spacing:.5px}
+.logo span{background:var(--grad);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
+@keyframes shine{to{background-position:300% 0}}
+nav .links{display:flex;gap:26px;color:var(--mut);font-size:15px}
+nav .links a{color:inherit;text-decoration:none;transition:.25s}
+nav .links a:hover{color:#fff}
+.hero{text-align:center;padding:70px 0 40px}
+.badge{display:inline-block;padding:7px 18px;border:1px solid var(--stroke);border-radius:99px;background:var(--card);color:var(--a2);font-size:13.5px;font-weight:600;animation:fadeDown .8s ease both}
+.hero h1{font-size:clamp(46px,9vw,96px);font-weight:900;line-height:1.15;margin:22px 0 6px;animation:fadeDown .9s .1s ease both}
+.hero h1 .grad{background:var(--grad);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite}
+.hero .role{font-size:clamp(19px,3.4vw,30px);color:var(--mut);min-height:46px;animation:fadeDown .9s .2s ease both}
+.hero .role b{color:#fff}
+.caret{display:inline-block;width:3px;height:1em;background:var(--a2);vertical-align:-2px;animation:blink .8s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.hero p.desc{max-width:640px;margin:16px auto 0;color:var(--mut);line-height:2;font-size:16.5px;animation:fadeDown .9s .3s ease both}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
+.cta{margin-top:32px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeDown .9s .4s ease both}
+.btn{padding:13px 30px;border-radius:14px;font-weight:800;font-size:15.5px;text-decoration:none;transition:.25s;border:1px solid transparent}
+.btn-main{background:linear-gradient(90deg,var(--a1),var(--a3));color:#fff;box-shadow:0 12px 34px rgba(124,92,255,.4)}
+.btn-main:hover{transform:translateY(-3px);box-shadow:0 18px 44px rgba(255,92,168,.45)}
+.btn-ghost{background:var(--card);border-color:var(--stroke);color:#fff}
+.btn-ghost:hover{transform:translateY(-3px);border-color:var(--a2)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:56px 0 10px}
+.stat{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:24px 10px;text-align:center;backdrop-filter:blur(10px);transition:.3s}
+.stat:hover{transform:translateY(-5px);border-color:rgba(0,224,199,.5)}
+.stat .num{font-size:36px;font-weight:900}
+.stat .lbl{color:var(--mut);font-size:14px;margin-top:4px}
+section{padding:64px 0 10px}
+.sec-head{text-align:center;margin-bottom:38px}
+.sec-head h2{font-size:clamp(28px,5vw,42px);font-weight:900}
+.sec-head h2 .grad{background:var(--grad);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
+.sec-head p{color:var(--mut);margin-top:8px}
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.skills{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.skill{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:22px 24px;backdrop-filter:blur(10px);transition:.3s;position:relative;overflow:hidden}
+.skill::before{content:'';position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:var(--c,#7c5cff)}
+.skill:hover{transform:translateY(-4px);border-color:var(--c)}
+.skill .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.skill .name{font-weight:800;font-size:18px}
+.skill .name small{display:block;color:var(--mut);font-weight:400;font-size:13px;margin-top:2px}
+.skill .pct{font-size:26px;font-weight:900;color:var(--c)}
+.bar{height:11px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--c),#fff3);transition:width 1.4s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 16px var(--c)}
+.rings{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px}
+.ring-card{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:22px 6px;text-align:center;transition:.3s}
+.ring-card:hover{transform:translateY(-5px)}
+.ring{width:104px;height:104px;margin:0 auto 10px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:9;stroke-linecap:round}
+.ring .bgc{stroke:rgba(255,255,255,.08)}
+.ring .fgc{stroke:var(--c);stroke-dasharray:264;stroke-dashoffset:264;transition:stroke-dashoffset 1.5s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 7px var(--c))}
+.ring-num{font-size:21px;font-weight:900;margin-top:-70px;margin-bottom:44px;position:relative}
+.ring-card .rname{font-weight:700;font-size:15.5px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.card{background:var(--card);border:1px solid var(--stroke);border-radius:20px;padding:28px 20px;transition:.35s;transform-style:preserve-3d;will-change:transform}
+.card:hover{border-color:rgba(124,92,255,.6)}
+.card .ico{font-size:34px;margin-bottom:14px}
+.card h3{font-size:18px;margin-bottom:8px}
+.card p{color:var(--mut);font-size:14.5px;line-height:1.95}
+footer{text-align:center;padding:70px 0 46px;color:var(--mut)}
+footer .big{font-size:clamp(26px,5vw,40px);font-weight:900;color:#fff;margin-bottom:12px}
+footer .sig{margin-top:26px;font-size:14px}
+footer .sig b{color:#fff}
+@media(max-width:860px){.skills{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.rings{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:repeat(2,1fr)}nav .links{display:none}}
+@media(max-width:520px){.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+<div class="wrap">
+  <nav>
+    <div class="logo en">Sinker <span>Design</span></div>
+    <div class="links">
+      <a href="#skills">مهارت‌ها</a><a href="#services">خدمات</a><a href="https://t.me/samelike" target="_blank" rel="noopener">ارتباط با ما</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="badge">✦ تیم طراحی و توسعه فول‌استک</div>
+    <h1><span class="en grad">Sinker Design</span></h1>
+    <div class="role">ما <b id="typed"></b><span class="caret"></span> می‌سازیم</div>
+    <p class="desc">از ایده تا محصول نهایی: طراحی رابط کاربری چشمگیر، توسعه فرانت‌اند و بک‌اند، یکپارچه‌سازی هوش مصنوعی و سئویی که دیده‌تان می‌کند. ما کد نمی‌زنیم — تجربه می‌سازیم.</p>
+    <div class="cta">
+      <a class="btn btn-main" href="#skills">دیدن مهارت‌ها</a>
+      <a class="btn btn-ghost" href="https://t.me/samelike" target="_blank" rel="noopener">✈️ ارتباط با ما</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="num en"><span class="count" data-to="7">0</span>+</div><div class="lbl">مهارت تخصصی اصلی</div></div>
+      <div class="stat"><div class="num en"><span class="count" data-to="60">0</span>+</div><div class="lbl">پروژه تحویل‌شده</div></div>
+      <div class="stat"><div class="num en"><span class="count" data-to="40">0</span>+</div><div class="lbl">مشتری راضی</div></div>
+      <div class="stat"><div class="num en"><span class="count" data-to="100">0</span>%</div><div class="lbl">ریسپانسیو و بهینه</div></div>
+    </div>
+  </header>
+
+  <section id="skills">
+    <div class="sec-head reveal"><h2>مهارت‌های <span class="grad">تخصصی</span></h2><p>ترکیبی که یک محصول کامل را از صفر تا صد می‌سازد</p></div>
+    <div class="skills">
+      <div class="skill reveal" style="--c:#f7df1e"><div class="top"><div class="name en">JavaScript<small>اینترکشن، انیمیشن و منطق فرانت‌اند</small></div><div class="pct en"><span class="count" data-to="92">0</span>%</div></div><div class="bar"><i data-w="92"></i></div></div>
+      <div class="skill reveal" style="--c:#00e0c7"><div class="top"><div class="name en">Artificial Intelligence<small>چت‌بات، اتوماسیون و فیچرهای هوشمند</small></div><div class="pct en"><span class="count" data-to="88">0</span>%</div></div><div class="bar"><i data-w="88"></i></div></div>
+      <div class="skill reveal" style="--c:#ff6b35"><div class="top"><div class="name en">HTML<small>ساختار تمیز، سمنتیک و دسترس‌پذیر</small></div><div class="pct en"><span class="count" data-to="96">0</span>%</div></div><div class="bar"><i data-w="96"></i></div></div>
+      <div class="skill reveal" style="--c:#4da3ff"><div class="top"><div class="name en">CSS<small>انیمیشن، گرادیان و طراحی خیره‌کننده</small></div><div class="pct en"><span class="count" data-to="94">0</span>%</div></div><div class="bar"><i data-w="94"></i></div></div>
+      <div class="skill reveal" style="--c:#a074c4"><div class="top"><div class="name en">PHP<small>بک‌اند، وردپرس و ووکامرس</small></div><div class="pct en"><span class="count" data-to="85">0</span>%</div></div><div class="bar"><i data-w="85"></i></div></div>
+      <div class="skill reveal" style="--c:#ff5ca8"><div class="top"><div class="name en">UI / UX Design<small>تجربه‌ای که کاربر عاشقش می‌شود</small></div><div class="pct en"><span class="count" data-to="90">0</span>%</div></div><div class="bar"><i data-w="90"></i></div></div>
+    </div>
+    <div class="rings">
+      <div class="ring-card reveal" style="--c:#ffb84d"><svg class="ring" viewBox="0 0 104 104"><circle class="bgc" cx="52" cy="52" r="42"/><circle class="fgc" data-p="87" cx="52" cy="52" r="42"/></svg><div class="ring-num en"><span class="count" data-to="87">0</span>%</div><div class="rname en">SEO</div></div>
+      <div class="ring-card reveal" style="--c:#7c5cff"><svg class="ring" viewBox="0 0 104 104"><circle class="bgc" cx="52" cy="52" r="42"/><circle class="fgc" data-p="92" cx="52" cy="52" r="42"/></svg><div class="ring-num en"><span class="count" data-to="92">0</span>%</div><div class="rname en">JavaScript</div></div>
+      <div class="ring-card reveal" style="--c:#00e0c7"><svg class="ring" viewBox="0 0 104 104"><circle class="bgc" cx="52" cy="52" r="42"/><circle class="fgc" data-p="88" cx="52" cy="52" r="42"/></svg><div class="ring-num en"><span class="count" data-to="88">0</span>%</div><div class="rname en">AI</div></div>
+      <div class="ring-card reveal" style="--c:#ff5ca8"><svg class="ring" viewBox="0 0 104 104"><circle class="bgc" cx="52" cy="52" r="42"/><circle class="fgc" data-p="90" cx="52" cy="52" r="42"/></svg><div class="ring-num en"><span class="count" data-to="90">0</span>%</div><div class="rname en">UI / UX</div></div>
+    </div>
+  </section>
+
+  <section id="services">
+    <div class="sec-head reveal"><h2>چی <span class="grad">می‌سازیم؟</span></h2><p>هر چیزی که یک کسب‌وکار آنلاین لازم دارد — زیر یک سقف</p></div>
+    <div class="cards">
+      <div class="card reveal tilt"><div class="ico">💻</div><h3>توسعه وب فول‌استک</h3><p>از فرانت‌اند خیره‌کننده تا بک‌اند سریع و امن با JavaScript و PHP — سریع، مقیاس‌پذیر و تمیز.</p></div>
+      <div class="card reveal tilt"><div class="ico">🤖</div><h3>هوش مصنوعی</h3><p>چت‌بات هوشمند، تولید محتوای خودکار و فیچرهای AI که محصولتان را یک سر و گردن بالاتر می‌برد.</p></div>
+      <div class="card reveal tilt"><div class="ico">🎨</div><h3>طراحی UI / UX</h3><p>رابط‌هایی که هم زیباست هم می‌فروشد؛ طراحی مبتنی بر رفتار کاربر، نه سلیقه لحظه‌ای.</p></div>
+      <div class="card reveal tilt"><div class="ico">🚀</div><h3>سئو و رشد</h3><p>سئوی تکنیکال و محتوایی که شما را به صفحه اول گوگل می‌رساند و آنجا نگه می‌دارد.</p></div>
+    </div>
+  </section>
+
+  <footer id="contact">
+    <div class="big reveal">یه ایده داری؟ <span class="en" style="background:var(--grad);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite">Sinker Design</span> می‌سازدش.</div>
+    <p class="reveal">از یک لندینگ ساده تا یک محصول کامل فول‌استک با هوش مصنوعی.</p>
+    <div class="cta reveal"><a class="btn btn-main" href="https://t.me/samelike" target="_blank" rel="noopener">✈️ ارتباط با ما در تلگرام — <span class="en">@samelike</span></a></div>
+    <div class="sig">© 2026 <b class="en">Sinker Design</b> — Crafted with passion, powered by code.</div>
+  </footer>
+</div>
+<script>
+// Typing effect
+const words=['وب‌سایت‌های خیره‌کننده','محصولات هوشمند با AI','تجربه‌های کاربری فراموش‌نشدنی','برندهایی که دیده می‌شوند'];
+let wi=0,ci=0,del=false;const tEl=document.getElementById('typed');
+(function type(){const w=words[wi];tEl.textContent=w.slice(0,ci);
+ if(!del){ci++;if(ci>w.length){del=true;return setTimeout(type,1500)}}
+ else{ci--;if(ci===0){del=false;wi=(wi+1)%words.length}}
+ setTimeout(type,del?32:68)})();
+// Reveal + bars + rings + counters
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(!e.isIntersecting)return;
+ e.target.classList.add('in');
+ e.target.querySelectorAll('.bar i').forEach(b=>b.style.width=b.dataset.w+'%');
+ e.target.querySelectorAll('.fgc').forEach(c=>c.style.strokeDashoffset=264-(264*c.dataset.p/100));
+ e.target.querySelectorAll('.count').forEach(runCount);
+ if(e.target.classList.contains('count'))runCount(e.target);
+ io.unobserve(e.target)})},{threshold:.3});
+function runCount(el){if(el._done)return;el._done=true;const to=+el.dataset.to,t0=performance.now();
+ (function tick(t){const p=Math.min((t-t0)/1300,1);el.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tick)})(t0)}
+document.querySelectorAll('.reveal,.stat,.skill,.ring-card').forEach(el=>io.observe(el));
+document.querySelectorAll('.count').forEach(el=>{if(!el.closest('.reveal,.stat,.skill,.ring-card'))io.observe(el)});
+// Tilt cards
+document.querySelectorAll('.tilt').forEach(card=>{
+ card.addEventListener('mousemove',e=>{const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+  card.style.transform=`perspective(700px) rotateY(${x*14}deg) rotateX(${-y*14}deg) translateY(-4px)`});
+ card.addEventListener('mouseleave',()=>card.style.transform='')});
+// Particles
+const cv=document.getElementById('particles'),ctx=cv.getContext('2d');let W,H,ps=[];
+function size(){W=cv.width=innerWidth;H=cv.height=innerHeight}size();addEventListener('resize',size);
+for(let i=0;i<70;i++)ps.push({x:Math.random()*2000,y:Math.random()*1400,r:Math.random()*1.8+.4,s:Math.random()*.35+.08,o:Math.random()*.6+.15});
+(function anim(){ctx.clearRect(0,0,W,H);ps.forEach(p=>{p.y-=p.s;if(p.y<-4){p.y=H+4;p.x=Math.random()*W}
+ ctx.beginPath();ctx.arc(p.x%W,p.y,p.r,0,7);ctx.fillStyle=`rgba(150,160,255,${p.o})`;ctx.fill()});requestAnimationFrame(anim)})();
+</script>
+</body>
+</html>
