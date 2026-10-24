@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -348,7 +348,7 @@ function setLang(l){
  try{localStorage.setItem('sd-lang',l)}catch(e){}
 }
 document.querySelectorAll('.langbar button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
-try{const saved=localStorage.getItem('sd-lang');setLang(saved||'en')}catch(e){setLang('en')}
+try{const saved=localStorage.getItem('sd-lang');setLang(saved||'fa')}catch(e){setLang('fa')}
 </script>
 </body>
 </html>
