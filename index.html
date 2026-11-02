@@ -185,6 +185,23 @@ html[data-theme="light"] .ring .bgc{stroke:rgba(0,0,0,.08)}
 html[data-theme="light"] .step .sn{-webkit-text-stroke:1.5px rgba(0,0,0,.28)}
 html[data-theme="light"] #topBtn{background:rgba(255,255,255,.85);color:#14142b}
 html[data-theme="light"] .orb{opacity:.28}
+/* --- Liquid Glass hero (WebGL) ------------------------------------------- */
+/* The hero is always a dark band so the WebGL scene reads in both themes. */
+.hero{position:relative;overflow:hidden;background:
+  radial-gradient(60% 50% at 78% 22%,rgba(255,170,0,.16),transparent 70%),
+  radial-gradient(55% 55% at 18% 82%,rgba(255,0,255,.14),transparent 70%),
+  linear-gradient(160deg,#0d0d14 0%,#0a0a0f 55%,#07070c 100%)}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:pan-y}
+.hero>*:not(canvas){position:relative;z-index:1}
+/* Re-scope the dark palette inside the hero when the site is in light mode. */
+html[data-theme="light"] .hero{--bg:#06060f;--card:rgba(255,255,255,.045);--stroke:rgba(255,255,255,.09);--txt:#f3f4fb;--mut:#a8abc9}
+html[data-theme="light"] .hero .badge{color:#dfe2ff}
+html[data-theme="light"] .hero .role b{color:#fff}
+html[data-theme="light"] .hero p.desc b{color:#e9ebff}
+html[data-theme="light"] .hero .mq-track{color:#c9ccf2}
+html[data-theme="light"] .hero .btn-ghost{color:#fff}
+.hero.lg-fallback canvas{display:none}
+@media (prefers-reduced-motion:reduce){.hero canvas{animation:none}}
 .gamecard{max-width:460px;margin:0 auto;border:1px solid var(--stroke);border-radius:22px;overflow:hidden;background:var(--card);box-shadow:0 24px 50px rgba(0,0,0,.25);padding:18px}
 .game-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;font-weight:800}
 .gscore{font-size:14px;color:var(--mut);font-weight:600}
@@ -216,7 +233,8 @@ html[data-theme="light"] .orb{opacity:.28}
     </div>
   </nav>
 
-  <header class="hero">
+  <header class="hero" data-liquid-glass>
+    <canvas aria-hidden="true" role="presentation"></canvas>
     <div class="badge"><span class="dot"></span><span data-i18n="badge">آماده همکاری در پروژه‌های بین‌المللی — Worldwide, Remote</span></div>
     <h1><span class="en grad">Sinker Design</span></h1>
     <div class="scope en">DESIGN — CODE — DEBUG — WIDGETS — AI AGENTS</div>
@@ -469,6 +487,482 @@ cv.addEventListener('touchend',function(e){
 },{passive:true});
 reset();draw(T.start,'');
 })();
+</script>
+<script type="module">
+// ===========================================================================
+// Liquid Glass Refraction — hero effect (vanilla port of LiquidGlassHero.astro)
+// Three.js + custom shaders. No build step: Three.js loads from the jsDelivr
+// ESM CDN via dynamic import(). If the CDN or WebGL is unavailable, the hero
+// keeps its static CSS gradient (class .lg-fallback) and never renders blank.
+// How it works (render-to-texture refraction):
+//   1. The background scene (gradient plane + torus knot + particles) is
+//      rendered into a WebGLRenderTarget.
+//   2. The glass meshes are rendered to screen with a custom ShaderMaterial
+//      that samples that target, offsetting UVs by the surface normal
+//      (refraction) with a separate offset per colour channel (dispersion).
+// ===========================================================================
+const WRAP_SELECTOR = '[data-liquid-glass]';
+const THREE_CDN = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+const PALETTE = { base: 0x0a0a0f, gold: 0xffaa00, magenta: 0xff00ff };
+
+// --- GLSL: Ashima 3D simplex noise (MIT). Organic wobble for the glass. ---
+const NOISE_GLSL = /* glsl */ `
+  vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
+  vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+  float snoise(vec3 v) {
+    const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
+    const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+    vec3 i  = floor(v + dot(v, C.yyy));
+    vec3 x0 = v - i + dot(i, C.xxx);
+    vec3 g = step(x0.yzx, x0.xyz);
+    vec3 l = 1.0 - g;
+    vec3 i1 = min(g.xyz, l.zxy);
+    vec3 i2 = max(g.xyz, l.zxy);
+    vec3 x1 = x0 - i1 + C.xxx;
+    vec3 x2 = x0 - i2 + C.yyy;
+    vec3 x3 = x0 - D.yyy;
+    i = mod289(i);
+    vec4 p = permute(permute(permute(
+        i.z + vec4(0.0, i1.z, i2.z, 1.0))
+      + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+      + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+    float n_ = 0.142857142857;
+    vec3 ns = n_ * D.wyz - D.xzx;
+    vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+    vec4 x_ = floor(j * ns.z);
+    vec4 y_ = floor(j - 7.0 * x_);
+    vec4 x = x_ * ns.x + ns.yyyy;
+    vec4 y = y_ * ns.x + ns.yyyy;
+    vec4 h = 1.0 - abs(x) - abs(y);
+    vec4 b0 = vec4(x.xy, y.xy);
+    vec4 b1 = vec4(x.zw, y.zw);
+    vec4 s0 = floor(b0) * 2.0 + 1.0;
+    vec4 s1 = floor(b1) * 2.0 + 1.0;
+    vec4 sh = -step(h, vec4(0.0));
+    vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+    vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+    vec3 p0 = vec3(a0.xy, h.x);
+    vec3 p1 = vec3(a0.zw, h.y);
+    vec3 p2 = vec3(a1.xy, h.z);
+    vec3 p3 = vec3(a1.zw, h.w);
+    vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
+    p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+    vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
+    m = m * m;
+    return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
+  }
+`;
+
+// --- GLSL: glass vertex shader.
+// Uniforms: uTime (seconds, wobble), uWobble (amplitude along the normal).
+// Varyings: vNormal (view-space, drives refraction), vViewDir (Fresnel rim),
+// vClipPos (rebuilt into screen UVs in the fragment shader).
+const GLASS_VERTEX = /* glsl */ `
+  uniform float uTime;
+  uniform float uWobble;
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  varying vec4 vClipPos;
+  ${NOISE_GLSL}
+  void main() {
+    vec3 pos = position;
+    float n = snoise(normal * 1.4 + vec3(uTime * 0.12, uTime * 0.09, uTime * 0.07));
+    pos += normal * n * uWobble;
+    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+    vNormal = normalize(normalMatrix * normal);
+    vViewDir = normalize(-mvPosition.xyz);
+    vClipPos = projectionMatrix * mvPosition;
+    gl_Position = vClipPos;
+  }
+`;
+
+// --- GLSL: glass fragment shader (the refraction itself).
+// Uniforms: tDiffuse (background scene as a texture), uResolution (drawing
+// buffer px, keeps distortion round), uTime (caustic shimmer), uRefract
+// (base refraction strength), uDispersion (chromatic split per channel),
+// uRipple (0..1 click/tap pulse), uRimGold/uRimMagenta (rim colours),
+// uOpacity (final lens alpha).
+const GLASS_FRAGMENT = /* glsl */ `
+  uniform sampler2D tDiffuse;
+  uniform vec2 uResolution;
+  uniform float uTime;
+  uniform float uRefract;
+  uniform float uDispersion;
+  uniform float uRipple;
+  uniform vec3 uRimGold;
+  uniform vec3 uRimMagenta;
+  uniform float uOpacity;
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  varying vec4 vClipPos;
+  void main() {
+    vec2 screenUv = (vClipPos.xy / vClipPos.w) * 0.5 + 0.5;
+    vec2 offset = vNormal.xy * uRefract * (1.0 + uRipple * 1.6);
+    offset.x /= (uResolution.x / uResolution.y);
+    float d = uDispersion * (1.0 + uRipple);
+    vec3 col;
+    col.r = texture2D(tDiffuse, screenUv + offset * (1.0 + d)).r;
+    col.g = texture2D(tDiffuse, screenUv + offset).g;
+    col.b = texture2D(tDiffuse, screenUv + offset * (1.0 - d)).b;
+    col *= 1.04;
+    float fres = pow(1.0 - max(dot(normalize(vNormal), normalize(vViewDir)), 0.0), 3.0);
+    float ang = atan(vNormal.y, vNormal.x) * 0.5 + 0.5;
+    vec3 rimCol = mix(uRimGold, uRimMagenta, ang);
+    col += rimCol * fres * 0.85;
+    vec3 L = normalize(vec3(-0.5, 0.8, 0.6));
+    float spec = pow(max(dot(normalize(vNormal), L), 0.0), 24.0);
+    col += vec3(1.0, 0.95, 0.85) * spec * 0.55;
+    float caustic = 0.5 + 0.5 * sin(vNormal.x * 8.0 + uTime * 0.6)
+                            * sin(vNormal.y * 8.0 - uTime * 0.4);
+    col += rimCol * caustic * 0.05;
+    col *= 1.0 - fres * 0.25;
+    gl_FragColor = vec4(col, uOpacity);
+  }
+`;
+
+// --- GLSL: animated gradient backdrop (refracted through the lens too).
+const BG_VERTEX = /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const BG_FRAGMENT = /* glsl */ `
+  uniform float uTime;
+  varying vec2 vUv;
+  void main() {
+    vec2 uv = vUv - 0.5;
+    vec2 goldC = vec2(0.32 + sin(uTime * 0.05) * 0.04, 0.28 + cos(uTime * 0.04) * 0.03);
+    vec2 magC = vec2(-0.30 + cos(uTime * 0.045) * 0.04, -0.30 + sin(uTime * 0.05) * 0.03);
+    float gold = smoothstep(0.9, 0.0, length(uv - goldC));
+    float mag = smoothstep(0.9, 0.0, length(uv - magC));
+    vec3 col = vec3(0.039, 0.039, 0.059);
+    col += vec3(1.0, 0.667, 0.0) * gold * 0.20;
+    col += vec3(1.0, 0.0, 1.0) * mag * 0.16;
+    col *= 1.0 - 0.35 * dot(uv, uv);
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+async function initLiquidGlass() {
+  const wrap = document.querySelector(WRAP_SELECTOR);
+  const canvas = wrap ? wrap.querySelector('canvas') : null;
+  if (!wrap || !canvas) return;
+  if (wrap.dataset.lgInit === '1') return;
+  wrap.dataset.lgInit = '1';
+
+  const isMobile = window.matchMedia('(max-width: 767px)').matches;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hasWebGL = (() => {
+    try {
+      const c = document.createElement('canvas');
+      return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    } catch (e) { return false; }
+  })();
+  if (!hasWebGL) { wrap.classList.add('lg-fallback'); return; }
+
+  let THREE;
+  try {
+    THREE = await import(THREE_CDN);
+  } catch (e) { wrap.classList.add('lg-fallback'); return; }
+
+  const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
+  const rtScale = isMobile ? 0.7 : 1;
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: !isMobile,
+      alpha: false,
+      powerPreference: 'high-performance',
+    });
+  } catch (e) { wrap.classList.add('lg-fallback'); return; }
+  renderer.setPixelRatio(dpr);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(PALETTE.base);
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 7);
+
+  const bgGroup = new THREE.Group();
+  scene.add(bgGroup);
+
+  scene.add(new THREE.AmbientLight(0x223344, 0.6));
+  const goldLight = new THREE.PointLight(PALETTE.gold, 60, 0, 2);
+  goldLight.position.set(4, 3, 3);
+  scene.add(goldLight);
+  const magentaLight = new THREE.PointLight(PALETTE.magenta, 45, 0, 2);
+  magentaLight.position.set(-4, -2, 2);
+  scene.add(magentaLight);
+  const coolLight = new THREE.DirectionalLight(0x88aaff, 0.6);
+  coolLight.position.set(-2, 4, 5);
+  scene.add(coolLight);
+
+  const bgMat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 } },
+    vertexShader: BG_VERTEX,
+    fragmentShader: BG_FRAGMENT,
+    depthWrite: false,
+  });
+  const bgPlane = new THREE.Mesh(new THREE.PlaneGeometry(44, 26), bgMat);
+  bgPlane.position.z = -9;
+  scene.add(bgPlane);
+
+  const knotGeo = new THREE.TorusKnotGeometry(
+    1.15, 0.34,
+    isMobile ? 140 : 220,
+    isMobile ? 24 : 36,
+  );
+  const knotMat = new THREE.MeshStandardMaterial({
+    color: 0x2a2a3a, metalness: 0.9, roughness: 0.28,
+    emissive: 0x0d0d18, emissiveIntensity: 0.6,
+  });
+  const knot = new THREE.Mesh(knotGeo, knotMat);
+  knot.position.z = -1;
+  knot.rotation.set(0.25, 0, 0);
+  bgGroup.add(knot);
+
+  const particleCount = isMobile ? 450 : 1400;
+  const pGeo = new THREE.BufferGeometry();
+  const pPos = new Float32Array(particleCount * 3);
+  const pCol = new Float32Array(particleCount * 3);
+  const gold = new THREE.Color(PALETTE.gold);
+  const magenta = new THREE.Color(PALETTE.magenta);
+  const white = new THREE.Color(0xffffff);
+  for (let i = 0; i < particleCount; i++) {
+    const r = 2.2 + Math.random() * 3.4;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    pPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+    pPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.7;
+    pPos[i * 3 + 2] = -1 + r * Math.cos(phi) * 0.6;
+    const c = Math.random() < 0.45 ? gold : Math.random() < 0.7 ? magenta : white;
+    pCol[i * 3] = c.r; pCol[i * 3 + 1] = c.g; pCol[i * 3 + 2] = c.b;
+  }
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  pGeo.setAttribute('color', new THREE.BufferAttribute(pCol, 3));
+  const pMat = new THREE.PointsMaterial({
+    size: 0.035, vertexColors: true, transparent: true, opacity: 0.9,
+    blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
+  });
+  const particles = new THREE.Points(pGeo, pMat);
+  bgGroup.add(particles);
+
+  const rt = new THREE.WebGLRenderTarget(2, 2, { samples: isMobile ? 0 : 4 });
+
+  const glassUniforms = {
+    tDiffuse: { value: rt.texture },
+    uResolution: { value: new THREE.Vector2(1, 1) },
+    uTime: { value: 0 },
+    uRefract: { value: isMobile ? 0.12 : 0.16 },
+    uDispersion: { value: 0.35 },
+    uRipple: { value: 0 },
+    uRimGold: { value: new THREE.Vector3(1.0, 0.667, 0.0) },
+    uRimMagenta: { value: new THREE.Vector3(1.0, 0.0, 1.0) },
+    uOpacity: { value: 0.96 },
+    uWobble: { value: isMobile ? 0.03 : 0.05 },
+  };
+  const glassMat = new THREE.ShaderMaterial({
+    uniforms: glassUniforms,
+    vertexShader: GLASS_VERTEX,
+    fragmentShader: GLASS_FRAGMENT,
+    transparent: true,
+    depthWrite: false,
+  });
+
+  const lensGeo = new THREE.SphereGeometry(1.35, isMobile ? 32 : 64, isMobile ? 32 : 64);
+  const mainLens = new THREE.Mesh(lensGeo, glassMat);
+  mainLens.scale.set(1, 1, 0.45);
+  mainLens.position.set(0, 0, 1.2);
+  mainLens.renderOrder = 10;
+  scene.add(mainLens);
+
+  const blobGeo = new THREE.SphereGeometry(1, isMobile ? 24 : 48, isMobile ? 24 : 48);
+  const blob1 = new THREE.Mesh(blobGeo, glassMat);
+  blob1.scale.set(0.45, 0.45, 0.22);
+  blob1.renderOrder = 10;
+  scene.add(blob1);
+  const blob2 = new THREE.Mesh(blobGeo, glassMat);
+  blob2.scale.set(0.32, 0.32, 0.16);
+  blob2.renderOrder = 10;
+  scene.add(blob2);
+  const glassMeshes = [mainLens, blob1, blob2];
+
+  // Fit factor: on narrow screens the background group scales down so the
+  // knot stays in frame; the lens keeps full size and its travel is clamped.
+  let fit = 1;
+  function resize() {
+    const w = wrap.clientWidth || 1;
+    const h = wrap.clientHeight || 1;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+    rt.setSize(Math.floor(w * dpr * rtScale), Math.floor(h * dpr * rtScale));
+    glassUniforms.uResolution.value.set(w * dpr, h * dpr);
+    fit = Math.min(1, camera.aspect * 1.05);
+    bgGroup.scale.setScalar(fit);
+  }
+  resize();
+
+  const pointer = { x: 0, y: 0 };
+  const lens = { x: 0, y: 0, vx: 0, vy: 0 };
+  let pointerDown = false;
+  let ripple = 0;
+
+  function onPointerMove(e) {
+    const r = wrap.getBoundingClientRect();
+    pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+    pointer.y = -(((e.clientY - r.top) / r.height) * 2 - 1);
+  }
+  function onPointerDown(e) { pointerDown = true; ripple = 1; onPointerMove(e); }
+  function onPointerUp() { pointerDown = false; }
+
+  function renderFrame() {
+    for (const m of glassMeshes) m.visible = false;
+    renderer.setRenderTarget(rt);
+    renderer.render(scene, camera);
+    for (const m of glassMeshes) m.visible = true;
+    renderer.setRenderTarget(null);
+    renderer.render(scene, camera);
+  }
+
+  const clock = new THREE.Clock();
+  let raf = 0;
+  let running = false;
+  let inView = true;
+  let tabVisible = !document.hidden;
+
+  function frame() {
+    if (!running) return;
+    raf = requestAnimationFrame(frame);
+    const dt = Math.min(clock.getDelta(), 0.05);
+    const t = clock.elapsedTime;
+
+    const stiffness = pointerDown ? 0.14 : 0.05;
+    const damping = pointerDown ? 0.82 : 0.94;
+    const tx = pointer.x * 2.3 * Math.max(fit, 0.55);
+    const ty = pointer.y * 1.4;
+    lens.vx += (tx - lens.x) * stiffness;
+    lens.vy += (ty - lens.y) * stiffness;
+    lens.vx *= damping;
+    lens.vy *= damping;
+    lens.x += lens.vx;
+    lens.y += lens.vy;
+    mainLens.position.set(lens.x, lens.y, 1.2);
+    const pulse = 1 + ripple * 0.1;
+    mainLens.scale.set(pulse, pulse, 0.45);
+    ripple *= 0.94;
+
+    blob1.position.set(Math.sin(t * 0.3) * 3.2 * fit, Math.cos(t * 0.23) * 1.6, 0.6);
+    blob2.position.set(Math.cos(t * 0.21) * 2.8 * fit, Math.sin(t * 0.27) * 1.9, 0.9);
+
+    knot.rotation.y += dt * 0.12;
+    knot.rotation.x = 0.25 + Math.sin(t * 0.1) * 0.08;
+    particles.rotation.y += dt * 0.02;
+    bgMat.uniforms.uTime.value = t;
+    glassUniforms.uTime.value = t;
+    glassUniforms.uRipple.value = ripple;
+
+    bgGroup.rotation.y += (pointer.x * 0.18 - bgGroup.rotation.y) * 0.04;
+    bgGroup.rotation.x += (-pointer.y * 0.12 - bgGroup.rotation.x) * 0.04;
+
+    renderFrame();
+  }
+
+  function startLoop() {
+    if (running || !inView || !tabVisible || prefersReduced) return;
+    running = true;
+    raf = requestAnimationFrame(frame);
+  }
+  function stopLoop() {
+    running = false;
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+  }
+
+  if (prefersReduced) {
+    glassUniforms.uTime.value = 0;
+    renderFrame();
+  } else {
+    startLoop();
+  }
+
+  const io = new IntersectionObserver(
+    ([entry]) => {
+      inView = entry.isIntersecting;
+      if (inView) startLoop();
+      else stopLoop();
+    },
+    { threshold: 0.05 },
+  );
+  io.observe(wrap);
+
+  function onVisibility() {
+    tabVisible = !document.hidden;
+    if (tabVisible) startLoop();
+    else stopLoop();
+  }
+  document.addEventListener('visibilitychange', onVisibility);
+
+  let resizeTimer = 0;
+  function onResize() {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(resize, 150);
+  }
+  window.addEventListener('resize', onResize);
+
+  // The hero height changes when the language switches (text length), so
+  // watch the wrapper itself, not just the window.
+  let ro = null;
+  if ('ResizeObserver' in window) {
+    ro = new ResizeObserver(() => resize());
+    ro.observe(wrap);
+  }
+
+  if (!prefersReduced) {
+    wrap.addEventListener('pointermove', onPointerMove, { passive: true });
+    wrap.addEventListener('pointerdown', onPointerDown, { passive: true });
+    wrap.addEventListener('pointerup', onPointerUp, { passive: true });
+    wrap.addEventListener('pointercancel', onPointerUp, { passive: true });
+    wrap.addEventListener('pointerleave', onPointerUp, { passive: true });
+  }
+
+  function destroy() {
+    stopLoop();
+    io.disconnect();
+    if (ro) ro.disconnect();
+    window.removeEventListener('resize', onResize);
+    document.removeEventListener('visibilitychange', onVisibility);
+    window.removeEventListener('pagehide', destroy);
+    wrap.removeEventListener('pointermove', onPointerMove);
+    wrap.removeEventListener('pointerdown', onPointerDown);
+    wrap.removeEventListener('pointerup', onPointerUp);
+    wrap.removeEventListener('pointercancel', onPointerUp);
+    wrap.removeEventListener('pointerleave', onPointerUp);
+    scene.traverse((o) => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) {
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of mats) {
+          if (m.map) m.map.dispose();
+          m.dispose();
+        }
+      }
+    });
+    rt.dispose();
+    renderer.dispose();
+    renderer.forceContextLoss();
+    delete wrap.dataset.lgInit;
+  }
+  window.addEventListener('pagehide', destroy);
+}
+
+initLiquidGlass();
 </script>
 </body>
 </html>
