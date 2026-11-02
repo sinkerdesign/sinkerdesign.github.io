@@ -496,6 +496,14 @@ reset();draw(T.start,'');
   }
 }
 </script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
 <script type="module">
 // ===========================================================================
 // Ice Dragon hero — vanilla Three.js (GLTF dragon + ice shader + snow)
@@ -665,9 +673,20 @@ async function initIceDragon() {
     dragon.traverse((o) => {
       if (o.isMesh) { o.material = iceMat; o.castShadow = false; o.receiveShadow = false; }
     });
-    // Normalize: ~3 world units tall, centered at the group origin, so the
+    // Normalize: ~3 world units, centered at the group origin, so the
     // composition does not depend on the model's native units.
-    const box = new THREE.Box3().setFromObject(dragon);
+    // NOTE: do NOT use Box3.setFromObject here — for a rigged (skinned)
+    // model it measures the bone-transformed vertices, which gave a
+    // 492-unit box and shrank the dragon to ~3 cm (invisible). Measure
+    // the raw geometry bounds instead, transformed by each mesh's matrix.
+    dragon.updateWorldMatrix(true, true);
+    const box = new THREE.Box3();
+    dragon.traverse((o) => {
+      if (o.isMesh && o.geometry) {
+        if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+        box.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld));
+      }
+    });
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
     const s = 3.0 / Math.max(size.x, size.y, size.z);
