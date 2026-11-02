@@ -192,7 +192,7 @@ html[data-theme="light"] .orb{opacity:.28}
   radial-gradient(55% 55% at 18% 82%,rgba(124,92,255,.12),transparent 70%),
   linear-gradient(160deg,#0c1420 0%,#0a1420 55%,#060b14 100%)}
 .hero canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:pan-y;pointer-events:none}
-.hero>*:not(canvas){position:relative;z-index:1}
+.hero-content{position:relative;z-index:10;background:rgba(15,25,40,.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:24px;padding:2rem;width:100%;max-width:880px;margin:0 auto;text-align:center}
 /* Re-scope the dark palette inside the hero when the site is in light mode. */
 html[data-theme="light"] .hero{--bg:#06060f;--card:rgba(255,255,255,.045);--stroke:rgba(255,255,255,.09);--txt:#f3f4fb;--mut:#a8abc9}
 html[data-theme="light"] .hero .badge{color:#dfe2ff}
@@ -200,7 +200,7 @@ html[data-theme="light"] .hero .role b{color:#fff}
 html[data-theme="light"] .hero p.desc b{color:#e9ebff}
 html[data-theme="light"] .hero .mq-track{color:#c9ccf2}
 html[data-theme="light"] .hero .btn-ghost{color:#fff}
-.hero.lg-fallback canvas{display:none}
+.hero.ice-fallback canvas{display:none}
 @media (prefers-reduced-motion:reduce){.hero canvas{animation:none}}
 .gamecard{max-width:460px;margin:0 auto;border:1px solid var(--stroke);border-radius:22px;overflow:hidden;background:var(--card);box-shadow:0 24px 50px rgba(0,0,0,.25);padding:18px}
 .game-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;font-weight:800}
@@ -233,8 +233,9 @@ html[data-theme="light"] .hero .btn-ghost{color:#fff}
     </div>
   </nav>
 
-  <header class="hero" data-liquid-glass>
+  <header class="hero" data-ice-dragon>
     <canvas aria-hidden="true" role="presentation"></canvas>
+    <div class="hero-content">
     <div class="badge"><span class="dot"></span><span data-i18n="badge">آماده همکاری در پروژه‌های بین‌المللی — Worldwide, Remote</span></div>
     <h1><span class="en grad">Sinker Design</span></h1>
     <div class="scope en">DESIGN — CODE — DEBUG — WIDGETS — AI AGENTS</div>
@@ -250,6 +251,7 @@ html[data-theme="light"] .hero .btn-ghost{color:#fff}
       <div class="stat"><div class="num en"><span class="count" data-to="120">0</span>+</div><div class="lbl" data-i18n="st2">پروژه تحویل‌شده</div></div>
       <div class="stat"><div class="num en"><span class="count" data-to="80">0</span>+</div><div class="lbl" data-i18n="st3">مشتری و همکار</div></div>
       <div class="stat"><div class="num en"><span class="count" data-to="15">0</span>+</div><div class="lbl" data-i18n="st4">کشور — پروژه ریموت</div></div>
+    </div>
     </div>
   </header>
 
@@ -496,38 +498,16 @@ reset();draw(T.start,'');
   }
 }
 </script>
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
 <script type="module">
 // ===========================================================================
-// Ice Dragon hero — vanilla Three.js (GLTF dragon + ice shader + snow)
-// Replaces the Liquid Glass hero: the glass lens, torus knot and confetti
-// particles are gone. A rigged dragon GLB (dragon.glb, CC0) flies with its
-// Flying_Idle wing animation, shaded as ice crystal, with soft falling snow.
-// Notes:
-//   - GLTFLoader comes from three/addons and is resolved by the import map
-//     above (bare specifier "three"). Import maps need a modern browser
-//     (Chrome 89+, Safari 16.4+, Firefox 108+).
-//   - The ice look is built with onBeforeCompile on a MeshPhysicalMaterial,
-//     NOT a raw ShaderMaterial: the dragon is a rigged SkinnedMesh, and a raw
-//     shader without skinning chunks would freeze it in its bind pose. The
-//     fresnel math is the same idea as the ice spec (ice-blue base, white
-//     glowing edges), injected into the material's emissive channel, so the
-//     wings keep flapping and the lighting keeps working.
-//   - If dragon.glb fails to load, the hero degrades gracefully to the
-//     gradient + snow scene (never blank).
+// Ice Dragon hero — vanilla Three.js (GLTF dragon + transmission ice + snow)
 // ===========================================================================
-const WRAP_SELECTOR = '[data-liquid-glass]';
+const WRAP_SELECTOR = '[data-ice-dragon]';
 const THREE_CDN = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 const DRAGON_URL = 'dragon.glb';
 const DRAGON_CLIP = /flying_idle/i; // hero wing loop; falls back to first clip
 const DRAGON_YAW = 0; // flip to Math.PI if the dragon ever faces away
+const MODEL_BASE_SIZE = 2.0; // the loaded model is normalized to this size
 
 // --- GLSL: animated gradient backdrop (ice tinted) ---------------------------
 const BG_VERTEX = /* glsl */ `
@@ -558,8 +538,8 @@ async function initIceDragon() {
   const wrap = document.querySelector(WRAP_SELECTOR);
   const canvas = wrap ? wrap.querySelector('canvas') : null;
   if (!wrap || !canvas) return;
-  if (wrap.dataset.lgInit === '1') return;
-  wrap.dataset.lgInit = '1';
+  if (wrap.dataset.iceInit === '1') return;
+  wrap.dataset.iceInit = '1';
 
   const isMobile = window.matchMedia('(max-width: 767px)').matches;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -569,13 +549,14 @@ async function initIceDragon() {
       return !!(c.getContext('webgl2') || c.getContext('webgl'));
     } catch (e) { return false; }
   })();
-  if (!hasWebGL) { wrap.classList.add('lg-fallback'); return; }
+  if (!hasWebGL) { wrap.classList.add('ice-fallback'); return; }
 
-  let THREE, GLTFLoader;
+  let THREE, GLTFLoader, RoomEnvironment;
   try {
     THREE = await import(THREE_CDN);
     ({ GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js'));
-  } catch (e) { wrap.classList.add('lg-fallback'); return; }
+    ({ RoomEnvironment } = await import('three/addons/environments/RoomEnvironment.js'));
+  } catch (e) { wrap.classList.add('ice-fallback'); return; }
 
   const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
   let renderer;
@@ -586,7 +567,7 @@ async function initIceDragon() {
       alpha: false,
       powerPreference: 'high-performance',
     });
-  } catch (e) { wrap.classList.add('lg-fallback'); return; }
+  } catch (e) { wrap.classList.add('ice-fallback'); return; }
   renderer.setPixelRatio(dpr);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -596,19 +577,22 @@ async function initIceDragon() {
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
   camera.position.set(0, 0, 7);
 
-  const bgGroup = new THREE.Group();
-  scene.add(bgGroup);
+  // --- Environment map: transmission ice needs one to look like real ice. ----
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+  pmrem.dispose();
 
-  scene.add(new THREE.AmbientLight(0x334455, 0.7));
-  const keyLight = new THREE.DirectionalLight(0xdff1ff, 1.0);
+  // --- Lights ------------------------------------------------------------------
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+  const keyLight = new THREE.DirectionalLight(0x88ccff, 2.0);
   keyLight.position.set(-3, 5, 6);
   scene.add(keyLight);
-  const iceLight = new THREE.PointLight(0x88ccff, 55, 0, 2);
+  const iceLight = new THREE.PointLight(0xffffff, 50);
   iceLight.position.set(-4, 2, 3);
   scene.add(iceLight);
-  const violetLight = new THREE.PointLight(0x7c5cff, 22, 0, 2);
-  violetLight.position.set(4, -1, 2);
-  scene.add(violetLight);
+
+  const bgGroup = new THREE.Group();
+  scene.add(bgGroup);
 
   const bgMat = new THREE.ShaderMaterial({
     uniforms: { uTime: { value: 0 } },
@@ -620,68 +604,61 @@ async function initIceDragon() {
   bgPlane.position.z = -9;
   scene.add(bgPlane);
 
-  // --- Ice material: fresnel edge glow injected into a lit physical material.
-  // Uniforms: uGlow (edge-glow strength), uEdgeColor (white-hot rim).
-  // The dragon is skinned, so a raw ShaderMaterial would freeze its wings;
-  // onBeforeCompile keeps skinning, lighting and the animation mixer working.
+  // --- Real refractive ice: MeshPhysicalMaterial with transmission. ---------
+  // No custom shader: a raw ShaderMaterial would freeze the rigged
+  // SkinnedMesh in its bind pose (no skinning chunks), so the wings would
+  // never flap. Transmission + env map does the ice look instead.
   const iceMat = new THREE.MeshPhysicalMaterial({
-    color: 0x88ccff,
+    color: 0xaaddff,
     metalness: 0.1,
-    roughness: 0.25,
+    roughness: 0.15,
+    transmission: 0.9,
+    thickness: 2.0,
+    ior: 1.31,
     clearcoat: 1.0,
-    clearcoatRoughness: 0.12,
-    emissive: 0x0a2a44,
-    emissiveIntensity: 0.35,
+    transparent: true,
   });
-  iceMat.onBeforeCompile = (shader) => {
-    shader.uniforms.uGlow = { value: isMobile ? 1.0 : 1.5 };
-    shader.uniforms.uEdgeColor = { value: new THREE.Color(0xffffff) };
-    shader.fragmentShader = shader.fragmentShader
-      .replace(
-        '#include <common>',
-        '#include <common>\nuniform float uGlow;\nuniform vec3 uEdgeColor;',
-      )
-      .replace(
-        '#include <emissivemap_fragment>',
-        `#include <emissivemap_fragment>
-        {
-          vec3 V = normalize( vViewPosition );
-          float fres = pow( 1.0 - clamp( dot( normalize( normal ), V ), 0.0, 1.0 ), 3.0 );
-          totalEmissiveRadiance += uEdgeColor * fres * uGlow;
-        }`,
-      );
-  };
-  iceMat.customProgramCacheKey = () => 'ice-dragon-v1';
 
   // --- Dragon ------------------------------------------------------------------
-  const dragonGroup = new THREE.Group();
-  scene.add(dragonGroup);
+  // The dragon assembly. The loaded model is normalized to a 2-unit base
+  // inside this group, so the scale/position below are the spec values:
+  // mobile 1.0 / y 1.5 (high, clear of the stats cards), desktop 1.5 / y 0.5.
+  const dragon = new THREE.Group();
+  scene.add(dragon);
   let mixer = null;
-  let dragon = null;
   let destroyed = false;
 
-  function placeDragon() {
-    if (isMobile) { dragonGroup.position.set(0, -1.4, -1.2); dragonGroup.scale.setScalar(0.75); }
-    else { dragonGroup.position.set(1.7, -0.5, -0.5); dragonGroup.scale.setScalar(1); }
+  function layoutDragon() {
+    const mobile = window.innerWidth < 768;
+    if (mobile) {
+      dragon.scale.set(1.0, 1.0, 1.0);
+      dragon.position.y = 1.5;
+    } else {
+      dragon.scale.set(1.5, 1.5, 1.5);
+      dragon.position.y = 0.5;
+    }
+    dragon.position.x = 0;
+    dragon.position.z = 0;
   }
-  placeDragon();
+  layoutDragon();
 
   const loader = new GLTFLoader();
   loader.load(DRAGON_URL, (gltf) => {
     if (destroyed) return;
-    dragon = gltf.scene;
-    dragon.traverse((o) => {
+    const model = gltf.scene;
+    model.traverse((o) => {
       if (o.isMesh) { o.material = iceMat; o.castShadow = false; o.receiveShadow = false; }
     });
-    // Normalize: ~3 world units, centered at the group origin, so the
-    // composition does not depend on the model's native units.
-    // NOTE: do NOT use Box3.setFromObject here — for a rigged (skinned)
-    // model it measures the bone-transformed vertices, which gave a
-    // 492-unit box and shrank the dragon to ~3 cm (invisible). Measure
-    // the raw geometry bounds instead, transformed by each mesh's matrix.
-    dragon.updateWorldMatrix(true, true);
+    // Normalize the raw model to a 2-unit base, centered at the group origin.
+    // The raw model is ~5.5 units wide (its node carries a 100x scale), so
+    // the spec scales above apply on top of this base — otherwise scale 1.0
+    // would show a 5.5-unit dragon cropped on mobile.
+    // Measure raw geometry bounds, NOT Box3.setFromObject: on a rigged
+    // (skinned) model that measures bone-transformed vertices and gave a
+    // 492-unit box, shrinking the dragon to ~3 cm (invisible).
+    model.updateWorldMatrix(true, true);
     const box = new THREE.Box3();
-    dragon.traverse((o) => {
+    model.traverse((o) => {
       if (o.isMesh && o.geometry) {
         if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
         box.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld));
@@ -689,12 +666,12 @@ async function initIceDragon() {
     });
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
-    const s = 3.0 / Math.max(size.x, size.y, size.z);
-    dragon.scale.setScalar(s);
-    dragon.position.set(-center.x * s, -center.y * s, -center.z * s);
-    dragonGroup.add(dragon);
+    const s = MODEL_BASE_SIZE / Math.max(size.x, size.y, size.z);
+    model.scale.setScalar(s);
+    model.position.set(-center.x * s, -center.y * s, -center.z * s);
+    dragon.add(model);
     if (!prefersReduced && gltf.animations && gltf.animations.length) {
-      mixer = new THREE.AnimationMixer(dragon);
+      mixer = new THREE.AnimationMixer(model);
       const clip = gltf.animations.find((c) => DRAGON_CLIP.test(c.name)) || gltf.animations[0];
       mixer.clipAction(clip).play();
     }
@@ -749,6 +726,7 @@ async function initIceDragon() {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h, false); // false: CSS controls display size
+    layoutDragon(); // re-apply the mobile/desktop breakpoint on resize
   }
   resize();
 
@@ -783,8 +761,8 @@ async function initIceDragon() {
     if (mixer) mixer.update(dt);
 
     // Dragon: slow sway + turn toward the pointer.
-    dragonGroup.rotation.y = DRAGON_YAW + Math.sin(t * 0.15) * 0.22 + smooth.x * 0.3;
-    dragonGroup.rotation.x = smooth.y * -0.08;
+    dragon.rotation.y = DRAGON_YAW + Math.sin(t * 0.15) * 0.22 + smooth.x * 0.3;
+    dragon.rotation.x = smooth.y * -0.08;
 
     // Snow: fall + faint sway, wrapping at the bottom.
     const pos = snowGeo.attributes.position.array;
@@ -800,7 +778,7 @@ async function initIceDragon() {
 
     bgMat.uniforms.uTime.value = t;
 
-    // Subtle parallax of the whole background, eased toward the pointer.
+    // Subtle parallax of the snow field, eased toward the pointer.
     bgGroup.rotation.y += (smooth.x * 0.12 - bgGroup.rotation.y) * 0.04;
     bgGroup.rotation.x += (-smooth.y * 0.08 - bgGroup.rotation.x) * 0.04;
 
@@ -882,7 +860,7 @@ async function initIceDragon() {
     snowMat.map.dispose();
     renderer.dispose();
     renderer.forceContextLoss();
-    delete wrap.dataset.lgInit;
+    delete wrap.dataset.iceInit;
   }
   window.addEventListener('pagehide', destroy);
 }
