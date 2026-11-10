@@ -188,11 +188,11 @@ html[data-theme="light"] .orb{opacity:.28}
 /* --- Liquid Glass hero (WebGL) ------------------------------------------- */
 /* The hero is always a dark band so the WebGL scene reads in both themes. */
 .hero{position:relative;overflow:hidden;color:#f3f4fb;background:
-  radial-gradient(60% 50% at 78% 22%,rgba(136,204,255,.14),transparent 70%),
-  radial-gradient(55% 55% at 18% 82%,rgba(124,92,255,.12),transparent 70%),
-  linear-gradient(160deg,#0c1420 0%,#0a1420 55%,#060b14 100%)}
-.hero canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:pan-y;pointer-events:none}
-.hero-content{position:relative;z-index:10;background:rgba(15,25,40,.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:24px;padding:2rem;width:100%;max-width:880px;margin:0 auto;text-align:center}
+  radial-gradient(60% 50% at 78% 22%,rgba(255,170,0,.16),transparent 70%),
+  radial-gradient(55% 55% at 18% 82%,rgba(255,0,255,.14),transparent 70%),
+  linear-gradient(160deg,#0d0d14 0%,#0a0a0f 55%,#07070c 100%)}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:pan-y}
+.hero>*:not(canvas){position:relative;z-index:1}
 /* Re-scope the dark palette inside the hero when the site is in light mode. */
 html[data-theme="light"] .hero{--bg:#06060f;--card:rgba(255,255,255,.045);--stroke:rgba(255,255,255,.09);--txt:#f3f4fb;--mut:#a8abc9}
 html[data-theme="light"] .hero .badge{color:#dfe2ff}
@@ -200,7 +200,7 @@ html[data-theme="light"] .hero .role b{color:#fff}
 html[data-theme="light"] .hero p.desc b{color:#e9ebff}
 html[data-theme="light"] .hero .mq-track{color:#c9ccf2}
 html[data-theme="light"] .hero .btn-ghost{color:#fff}
-.hero.ice-fallback canvas{display:none}
+.hero.lg-fallback canvas{display:none}
 @media (prefers-reduced-motion:reduce){.hero canvas{animation:none}}
 .gamecard{max-width:460px;margin:0 auto;border:1px solid var(--stroke);border-radius:22px;overflow:hidden;background:var(--card);box-shadow:0 24px 50px rgba(0,0,0,.25);padding:18px}
 .game-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;font-weight:800}
@@ -211,8 +211,8 @@ html[data-theme="light"] .hero .btn-ghost{color:#fff}
 .gbtn{padding:12px 26px;border-radius:12px;border:0;background:linear-gradient(90deg,var(--a1),var(--a3));color:#fff;font-family:inherit;font-weight:800;font-size:15px;cursor:pointer;transition:all .35s var(--ease)}
 .gbtn:hover{transform:translateY(-2px)}
 .ghint{color:var(--mut);font-size:13.5px;flex:1;min-width:200px}
-.dpad{display:none;grid-template-columns:repeat(3,52px);gap:8px;justify-content:center;margin-top:14px}
-.dpad button{width:52px;height:52px;border-radius:14px;border:1px solid var(--stroke);background:var(--card);color:var(--txt);font-size:20px;cursor:pointer}
+.dpad{display:none;grid-template-columns:repeat(3,52px);gap:8px;justify-content:center;margin-top:14px;direction:ltr}
+.dpad button{width:52px;height:52px;border-radius:14px;border:1px solid var(--stroke);background:var(--card);color:var(--txt);font-size:20px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 @media(max-width:640px){.dpad{display:grid}}
 </style>
 </head>
@@ -233,9 +233,8 @@ html[data-theme="light"] .hero .btn-ghost{color:#fff}
     </div>
   </nav>
 
-  <header class="hero" data-ice-dragon>
+  <header class="hero" data-liquid-glass>
     <canvas aria-hidden="true" role="presentation"></canvas>
-    <div class="hero-content">
     <div class="badge"><span class="dot"></span><span data-i18n="badge">آماده همکاری در پروژه‌های بین‌المللی — Worldwide, Remote</span></div>
     <h1><span class="en grad">Sinker Design</span></h1>
     <div class="scope en">DESIGN — CODE — DEBUG — WIDGETS — AI AGENTS</div>
@@ -251,7 +250,6 @@ html[data-theme="light"] .hero .btn-ghost{color:#fff}
       <div class="stat"><div class="num en"><span class="count" data-to="120">0</span>+</div><div class="lbl" data-i18n="st2">پروژه تحویل‌شده</div></div>
       <div class="stat"><div class="num en"><span class="count" data-to="80">0</span>+</div><div class="lbl" data-i18n="st3">مشتری و همکار</div></div>
       <div class="stat"><div class="num en"><span class="count" data-to="15">0</span>+</div><div class="lbl" data-i18n="st4">کشور — پروژه ریموت</div></div>
-    </div>
     </div>
   </header>
 
@@ -426,59 +424,112 @@ apply(document.documentElement.dataset.theme||'light');
 </script>
 <script>
 // Snake game — keyboard, swipe and on-screen d-pad
+// v8: glowing snake with eyes, pulsing apple, eat particles, direction fixes
 (function(){
 var cv=document.getElementById('snake');if(!cv)return;
 var ctx=cv.getContext('2d');
 var N=20,S=20,W=400;
-var snake,dir,next,food,score,best,loop,alive;
+var snake,dir,next,food,score,best,loop,alive,newBest;
 var scoreEl=document.getElementById('score'),bestEl=document.getElementById('best');
 var L=(typeof curLang!=='undefined'&&curLang)||'fa';
-var T={fa:{start:'برای شروع دکمه را بزن',over:'بازی تمام شد!',again:function(s){return 'امتیاز: '+s+' — دوباره بازی کن';}},
-en:{start:'Press start to play',over:'Game over!',again:function(s){return 'Score: '+s+' — play again';}},
-ar:{start:'اضغط ابدأ للعب',over:'انتهت اللعبة!',again:function(s){return 'النقاط: '+s+' — العب مجددًا';}}}[L]||{start:'برای شروع دکمه را بزن',over:'بازی تمام شد!',again:function(s){return 'امتیاز: '+s+' — دوباره بازی کن';}};
+var T={fa:{start:'برای شروع، دکمه را بزن یا یک جهت را انتخاب کن',over:'بازی تمام شد!',again:function(s){return 'امتیاز: '+s+' — دوباره بازی کن';},newBest:'🏆 رکورد جدید!'},
+en:{start:'Press start — or just pick a direction',over:'Game over!',again:function(s){return 'Score: '+s+' — play again';},newBest:'🏆 New best!'},
+ar:{start:'اضغط ابدأ — أو اختر اتجاهًا',over:'انتهت اللعبة!',again:function(s){return 'النقاط: '+s+' — العب مجددًا';},newBest:'🏆 رقم قياسي جديد!'}}[L]||{start:'برای شروع، دکمه را بزن یا یک جهت را انتخاب کن',over:'بازی تمام شد!',again:function(s){return 'امتیاز: '+s+' — دوباره بازی کن';},newBest:'🏆 رکورد جدید!'};
 try{best=+(localStorage.getItem('sd-snake-best')||0);}catch(e){best=0;}
+var parts=[],floats=[],t0=Date.now(),raf=0;
 function updateScore(){scoreEl.textContent=score;bestEl.textContent=best;}
 function placeFood(){while(true){var f={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)};var clash=false;for(var i=0;i<snake.length;i++){if(snake[i].x===f.x&&snake[i].y===f.y){clash=true;break;}}if(!clash){food=f;return;}}}
+function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect){ctx.roundRect(x,y,w,h,r);}else{ctx.rect(x,y,w,h);}ctx.fill();}
 function draw(msg1,msg2){
+ var t=(Date.now()-t0)/1000;
  ctx.fillStyle='#0b1f14';ctx.fillRect(0,0,W,W);
+ for(var gy=0;gy<N;gy++){for(var gx=0;gx<N;gx++){if((gx+gy)%2===0){ctx.fillStyle='rgba(255,255,255,.022)';ctx.fillRect(gx*S,gy*S,S,S);}}}
  ctx.fillStyle='rgba(255,255,255,.05)';
  for(var g=1;g<N;g++){ctx.fillRect(g*S,0,1,W);ctx.fillRect(0,g*S,W,1);}
- ctx.fillStyle='#ff5c7a';ctx.beginPath();ctx.arc(food.x*S+S/2,food.y*S+S/2,S/2-2,0,7);ctx.fill();
- for(var i=0;i<snake.length;i++){ctx.fillStyle=i===0?'#7df9c8':'#2ee06f';ctx.fillRect(snake[i].x*S+1,snake[i].y*S+1,S-2,S-2);}
- if(msg1){ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,0,W,W);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 22px Vazirmatn, sans-serif';ctx.fillText(msg1,W/2,190);if(msg2){ctx.font='16px Vazirmatn, sans-serif';ctx.fillText(msg2,W/2,220);}}
+ // apple — pulsing radial gradient + leaf
+ var ax=food.x*S+S/2,ay=food.y*S+S/2,ar=S/2-2+Math.sin(t*4)*1.4;
+ var ag=ctx.createRadialGradient(ax-3,ay-3,1,ax,ay,ar+2);
+ ag.addColorStop(0,'#ff9fb0');ag.addColorStop(.55,'#ff5c7a');ag.addColorStop(1,'#e63e5f');
+ ctx.save();ctx.shadowColor='rgba(255,92,122,.8)';ctx.shadowBlur=14;
+ ctx.fillStyle=ag;ctx.beginPath();ctx.arc(ax,ay,Math.max(4,ar),0,7);ctx.fill();ctx.restore();
+ ctx.strokeStyle='#2ee06f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ax,ay-ar+2);ctx.lineTo(ax+3,ay-ar-3);ctx.stroke();
+ ctx.fillStyle='#2ee06f';ctx.beginPath();ctx.ellipse(ax+6,ay-ar-2,4,2.4,-.5,0,7);ctx.fill();
+ // snake — rounded glowing segments, head with eyes that look where it goes
+ for(var i=snake.length-1;i>=0;i--){
+   var seg=snake[i],mix=i/Math.max(1,snake.length-1);
+   var r=Math.floor(125+(46-125)*mix),gg=Math.floor(249+(224-249)*mix),b=Math.floor(200+(95-200)*mix);
+   ctx.fillStyle='rgb('+r+','+gg+','+b+')';
+   if(i===0){ctx.save();ctx.shadowColor='rgba(125,249,200,.9)';ctx.shadowBlur=16;}
+   rr(seg.x*S+1.5,seg.y*S+1.5,S-3,S-3,6);
+   if(i===0){ctx.restore();}
+ }
+ var hx=snake[0].x*S+S/2,hy=snake[0].y*S+S/2;
+ var px=dir.x,py=dir.y,ox=-py,oy=px;
+ var ex1=hx+ox*5+px*3,ey1=hy+oy*5+py*3,ex2=hx-ox*5+px*3,ey2=hy-oy*5+py*3;
+ ctx.fillStyle='#fff';
+ ctx.beginPath();ctx.arc(ex1,ey1,3.4,0,7);ctx.fill();
+ ctx.beginPath();ctx.arc(ex2,ey2,3.4,0,7);ctx.fill();
+ ctx.fillStyle='#0b1f14';
+ ctx.beginPath();ctx.arc(ex1+px*1.4,ey1+py*1.4,1.7,0,7);ctx.fill();
+ ctx.beginPath();ctx.arc(ex2+px*1.4,ey2+py*1.4,1.7,0,7);ctx.fill();
+ // eat particles
+ for(var p=0;p<parts.length;p++){var pt=parts[p];ctx.globalAlpha=Math.max(0,pt.life);ctx.fillStyle=pt.c;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.r,0,7);ctx.fill();}
+ ctx.globalAlpha=1;
+ // floating +10
+ ctx.textAlign='center';ctx.font='bold 15px Vazirmatn, sans-serif';
+ for(var f=0;f<floats.length;f++){var fl=floats[f];ctx.globalAlpha=Math.max(0,fl.life);ctx.fillStyle='#ffe066';ctx.fillText(fl.txt,fl.x,fl.y);}
+ ctx.globalAlpha=1;
+ if(msg1){ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,0,W,W);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 22px Vazirmatn, sans-serif';ctx.fillText(msg1,W/2,180);if(msg2){ctx.font='16px Vazirmatn, sans-serif';ctx.fillText(msg2,W/2,212);}if(newBest&&msg1===T.over){ctx.font='bold 16px Vazirmatn, sans-serif';ctx.fillStyle='#ffe066';ctx.fillText(T.newBest,W/2,244);}}
 }
-function reset(){snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir={x:1,y:0};next={x:1,y:0};score=0;placeFood();updateScore();}
+function burst(x,y){for(var i=0;i<12;i++){var a=Math.random()*Math.PI*2,sp=1+Math.random()*2.4;parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,r:2+Math.random()*2.5,life:1,c:Math.random()<.5?'#ffe066':'#7df9c8'});}}
+function reset(){snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir={x:1,y:0};next={x:1,y:0};score=0;newBest=false;parts=[];floats=[];placeFood();updateScore();}
 function step(){
  dir=next;
  var head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
  var dead=head.x<0||head.y<0||head.x>=N||head.y>=N;
  if(!dead){for(var i=0;i<snake.length;i++){if(snake[i].x===head.x&&snake[i].y===head.y){dead=true;break;}}}
- if(dead){clearInterval(loop);alive=false;draw(T.over,T.again(score));return;}
+ if(dead){clearInterval(loop);loop=0;alive=false;stopRender();draw(T.over,T.again(score));return;}
  snake.unshift(head);
  if(head.x===food.x&&head.y===food.y){
    score+=10;
-   if(score>best){best=score;try{localStorage.setItem('sd-snake-best',best);}catch(e){}}
+   if(score>best){best=score;newBest=true;try{localStorage.setItem('sd-snake-best',best);}catch(e){}}
+   burst(head.x*S+S/2,head.y*S+S/2);
+   floats.push({txt:'+10',x:head.x*S+S/2,y:head.y*S,life:1});
    placeFood();
    clearInterval(loop);loop=setInterval(step,Math.max(70,140-score));
  }else{snake.pop();}
  draw();updateScore();
 }
-function start(){if(loop)clearInterval(loop);reset();alive=true;loop=setInterval(step,140);draw();}
+function render(){
+ if(!alive&&!parts.length&&!floats.length){raf=0;return;}
+ for(var i=parts.length-1;i>=0;i--){var p=parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.12;p.life-=.03;if(p.life<=0)parts.splice(i,1);}
+ for(var j=floats.length-1;j>=0;j--){var f=floats[j];f.y-=1.1;f.life-=.02;if(f.life<=0)floats.splice(j,1);}
+ draw();
+ raf=requestAnimationFrame(render);
+}
+function startRender(){if(!raf)raf=requestAnimationFrame(render);}
+function stopRender(){if(raf){cancelAnimationFrame(raf);raf=0;}}
+function start(){if(loop)clearInterval(loop);reset();alive=true;loop=setInterval(step,140);draw();startRender();}
+function gameInView(){var r=cv.getBoundingClientRect();return r.bottom>0&&r.top<window.innerHeight;}
 function setDir(x,y){
- if(!alive)return;
- if(x===-dir.x&&y===-dir.y)return;
- if(x===dir.x&&y===dir.y)return;
+ if(!alive){start();}
+ // block a 180-degree turn against the queued direction, not just the current
+ // one — two quick turns in one tick must not let the snake reverse into itself
+ if(x===-next.x&&y===-next.y)return;
+ if(x===next.x&&y===next.y)return;
  next={x:x,y:y};
 }
 document.getElementById('startBtn').addEventListener('click',start);
 var keys={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],w:[0,-1],s:[0,1],a:[-1,0],d:[1,0],W:[0,-1],S:[0,1],A:[-1,0],D:[1,0]};
 document.addEventListener('keydown',function(e){
+ var tg=e.target;if(tg&&(tg.tagName==='INPUT'||tg.tagName==='TEXTAREA'||tg.isContentEditable))return;
  var k=keys[e.key];if(!k)return;
- if(alive)e.preventDefault();
+ if(!alive&&!gameInView())return;
+ e.preventDefault();
  setDir(k[0],k[1]);
 });
 document.querySelectorAll('.dpad button').forEach(function(b){
- b.addEventListener('pointerdown',function(){var p=b.dataset.dir.split(',');setDir(+p[0],+p[1]);});
+ b.addEventListener('pointerdown',function(ev){ev.preventDefault();var p=b.dataset.dir.split(',');setDir(+p[0],+p[1]);});
 });
 var tx=0,ty=0;
 cv.addEventListener('touchstart',function(e){var t=e.touches[0];tx=t.clientX;ty=t.clientY;},{passive:true});
@@ -490,26 +541,141 @@ cv.addEventListener('touchend',function(e){
 reset();draw(T.start,'');
 })();
 </script>
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
 <script type="module">
 // ===========================================================================
-// Ice Dragon hero — vanilla Three.js (GLTF dragon + transmission ice + snow)
+// Liquid Glass Refraction — hero effect (vanilla port of LiquidGlassHero.astro)
+// Three.js + custom shaders. No build step: Three.js loads from the jsDelivr
+// ESM CDN via dynamic import(). If the CDN or WebGL is unavailable, the hero
+// keeps its static CSS gradient (class .lg-fallback) and never renders blank.
+// How it works (render-to-texture refraction):
+//   1. The background scene (gradient plane + torus knot + particles) is
+//      rendered into a WebGLRenderTarget.
+//   2. The glass meshes are rendered to screen with a custom ShaderMaterial
+//      that samples that target, offsetting UVs by the surface normal
+//      (refraction) with a separate offset per colour channel (dispersion).
 // ===========================================================================
-const WRAP_SELECTOR = '[data-ice-dragon]';
+const WRAP_SELECTOR = '[data-liquid-glass]';
 const THREE_CDN = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-const DRAGON_URL = 'dragon.glb';
-const DRAGON_CLIP = /flying_idle/i; // hero wing loop; falls back to first clip
-const DRAGON_YAW = 0; // flip to Math.PI if the dragon ever faces away
-const MODEL_BASE_SIZE = 2.0; // the loaded model is normalized to this size
+const PALETTE = { base: 0x0a0a0f, gold: 0xffaa00, magenta: 0xff00ff };
 
-// --- GLSL: animated gradient backdrop (ice tinted) ---------------------------
+// --- GLSL: Ashima 3D simplex noise (MIT). Organic wobble for the glass. ---
+const NOISE_GLSL = /* glsl */ `
+  vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
+  vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+  float snoise(vec3 v) {
+    const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
+    const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+    vec3 i  = floor(v + dot(v, C.yyy));
+    vec3 x0 = v - i + dot(i, C.xxx);
+    vec3 g = step(x0.yzx, x0.xyz);
+    vec3 l = 1.0 - g;
+    vec3 i1 = min(g.xyz, l.zxy);
+    vec3 i2 = max(g.xyz, l.zxy);
+    vec3 x1 = x0 - i1 + C.xxx;
+    vec3 x2 = x0 - i2 + C.yyy;
+    vec3 x3 = x0 - D.yyy;
+    i = mod289(i);
+    vec4 p = permute(permute(permute(
+        i.z + vec4(0.0, i1.z, i2.z, 1.0))
+      + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+      + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+    float n_ = 0.142857142857;
+    vec3 ns = n_ * D.wyz - D.xzx;
+    vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+    vec4 x_ = floor(j * ns.z);
+    vec4 y_ = floor(j - 7.0 * x_);
+    vec4 x = x_ * ns.x + ns.yyyy;
+    vec4 y = y_ * ns.x + ns.yyyy;
+    vec4 h = 1.0 - abs(x) - abs(y);
+    vec4 b0 = vec4(x.xy, y.xy);
+    vec4 b1 = vec4(x.zw, y.zw);
+    vec4 s0 = floor(b0) * 2.0 + 1.0;
+    vec4 s1 = floor(b1) * 2.0 + 1.0;
+    vec4 sh = -step(h, vec4(0.0));
+    vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+    vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+    vec3 p0 = vec3(a0.xy, h.x);
+    vec3 p1 = vec3(a0.zw, h.y);
+    vec3 p2 = vec3(a1.xy, h.z);
+    vec3 p3 = vec3(a1.zw, h.w);
+    vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
+    p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+    vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
+    m = m * m;
+    return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
+  }
+`;
+
+// --- GLSL: glass vertex shader.
+// Uniforms: uTime (seconds, wobble), uWobble (amplitude along the normal).
+// Varyings: vNormal (view-space, drives refraction), vViewDir (Fresnel rim),
+// vClipPos (rebuilt into screen UVs in the fragment shader).
+const GLASS_VERTEX = /* glsl */ `
+  uniform float uTime;
+  uniform float uWobble;
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  varying vec4 vClipPos;
+  ${NOISE_GLSL}
+  void main() {
+    vec3 pos = position;
+    float n = snoise(normal * 1.4 + vec3(uTime * 0.12, uTime * 0.09, uTime * 0.07));
+    pos += normal * n * uWobble;
+    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+    vNormal = normalize(normalMatrix * normal);
+    vViewDir = normalize(-mvPosition.xyz);
+    vClipPos = projectionMatrix * mvPosition;
+    gl_Position = vClipPos;
+  }
+`;
+
+// --- GLSL: glass fragment shader (the refraction itself).
+// Uniforms: tDiffuse (background scene as a texture), uResolution (drawing
+// buffer px, keeps distortion round), uTime (caustic shimmer), uRefract
+// (base refraction strength), uDispersion (chromatic split per channel),
+// uRipple (0..1 click/tap pulse), uRimGold/uRimMagenta (rim colours),
+// uOpacity (final lens alpha).
+const GLASS_FRAGMENT = /* glsl */ `
+  uniform sampler2D tDiffuse;
+  uniform vec2 uResolution;
+  uniform float uTime;
+  uniform float uRefract;
+  uniform float uDispersion;
+  uniform float uRipple;
+  uniform vec3 uRimGold;
+  uniform vec3 uRimMagenta;
+  uniform float uOpacity;
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  varying vec4 vClipPos;
+  void main() {
+    vec2 screenUv = (vClipPos.xy / vClipPos.w) * 0.5 + 0.5;
+    vec2 offset = vNormal.xy * uRefract * (1.0 + uRipple * 1.6);
+    offset.x /= (uResolution.x / uResolution.y);
+    float d = uDispersion * (1.0 + uRipple);
+    vec3 col;
+    col.r = texture2D(tDiffuse, screenUv + offset * (1.0 + d)).r;
+    col.g = texture2D(tDiffuse, screenUv + offset).g;
+    col.b = texture2D(tDiffuse, screenUv + offset * (1.0 - d)).b;
+    col *= 1.04;
+    float fres = pow(1.0 - max(dot(normalize(vNormal), normalize(vViewDir)), 0.0), 3.0);
+    float ang = atan(vNormal.y, vNormal.x) * 0.5 + 0.5;
+    vec3 rimCol = mix(uRimGold, uRimMagenta, ang);
+    col += rimCol * fres * 0.85;
+    vec3 L = normalize(vec3(-0.5, 0.8, 0.6));
+    float spec = pow(max(dot(normalize(vNormal), L), 0.0), 24.0);
+    col += vec3(1.0, 0.95, 0.85) * spec * 0.55;
+    float caustic = 0.5 + 0.5 * sin(vNormal.x * 8.0 + uTime * 0.6)
+                            * sin(vNormal.y * 8.0 - uTime * 0.4);
+    col += rimCol * caustic * 0.05;
+    col *= 1.0 - fres * 0.25;
+    gl_FragColor = vec4(col, uOpacity);
+  }
+`;
+
+// --- GLSL: animated gradient backdrop (refracted through the lens too).
 const BG_VERTEX = /* glsl */ `
   varying vec2 vUv;
   void main() {
@@ -522,24 +688,24 @@ const BG_FRAGMENT = /* glsl */ `
   varying vec2 vUv;
   void main() {
     vec2 uv = vUv - 0.5;
-    vec2 iceC = vec2(0.32 + sin(uTime * 0.05) * 0.04, 0.28 + cos(uTime * 0.04) * 0.03);
-    vec2 vioC = vec2(-0.30 + cos(uTime * 0.045) * 0.04, -0.30 + sin(uTime * 0.05) * 0.03);
-    float ice = smoothstep(0.9, 0.0, length(uv - iceC));
-    float vio = smoothstep(0.9, 0.0, length(uv - vioC));
-    vec3 col = vec3(0.039, 0.078, 0.125); // deep ice blue #0a1420
-    col += vec3(0.53, 0.80, 1.0) * ice * 0.20;
-    col += vec3(0.49, 0.36, 1.0) * vio * 0.12;
+    vec2 goldC = vec2(0.32 + sin(uTime * 0.05) * 0.04, 0.28 + cos(uTime * 0.04) * 0.03);
+    vec2 magC = vec2(-0.30 + cos(uTime * 0.045) * 0.04, -0.30 + sin(uTime * 0.05) * 0.03);
+    float gold = smoothstep(0.9, 0.0, length(uv - goldC));
+    float mag = smoothstep(0.9, 0.0, length(uv - magC));
+    vec3 col = vec3(0.039, 0.039, 0.059);
+    col += vec3(1.0, 0.667, 0.0) * gold * 0.20;
+    col += vec3(1.0, 0.0, 1.0) * mag * 0.16;
     col *= 1.0 - 0.35 * dot(uv, uv);
     gl_FragColor = vec4(col, 1.0);
   }
 `;
 
-async function initIceDragon() {
+async function initLiquidGlass() {
   const wrap = document.querySelector(WRAP_SELECTOR);
   const canvas = wrap ? wrap.querySelector('canvas') : null;
   if (!wrap || !canvas) return;
-  if (wrap.dataset.iceInit === '1') return;
-  wrap.dataset.iceInit = '1';
+  if (wrap.dataset.lgInit === '1') return;
+  wrap.dataset.lgInit = '1';
 
   const isMobile = window.matchMedia('(max-width: 767px)').matches;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -549,16 +715,15 @@ async function initIceDragon() {
       return !!(c.getContext('webgl2') || c.getContext('webgl'));
     } catch (e) { return false; }
   })();
-  if (!hasWebGL) { wrap.classList.add('ice-fallback'); return; }
+  if (!hasWebGL) { wrap.classList.add('lg-fallback'); return; }
 
-  let THREE, GLTFLoader, RoomEnvironment;
+  let THREE;
   try {
     THREE = await import(THREE_CDN);
-    ({ GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js'));
-    ({ RoomEnvironment } = await import('three/addons/environments/RoomEnvironment.js'));
-  } catch (e) { wrap.classList.add('ice-fallback'); return; }
+  } catch (e) { wrap.classList.add('lg-fallback'); return; }
 
   const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
+  const rtScale = isMobile ? 0.7 : 1;
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({
@@ -567,32 +732,29 @@ async function initIceDragon() {
       alpha: false,
       powerPreference: 'high-performance',
     });
-  } catch (e) { wrap.classList.add('ice-fallback'); return; }
+  } catch (e) { wrap.classList.add('lg-fallback'); return; }
   renderer.setPixelRatio(dpr);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 1.1;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0a1420);
+  scene.background = new THREE.Color(PALETTE.base);
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
   camera.position.set(0, 0, 7);
 
-  // --- Environment map: transmission ice needs one to look like real ice. ----
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
-  pmrem.dispose();
-
-  // --- Lights ------------------------------------------------------------------
-  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-  const keyLight = new THREE.DirectionalLight(0x88ccff, 2.0);
-  keyLight.position.set(-3, 5, 6);
-  scene.add(keyLight);
-  const iceLight = new THREE.PointLight(0xffffff, 50);
-  iceLight.position.set(-4, 2, 3);
-  scene.add(iceLight);
-
   const bgGroup = new THREE.Group();
   scene.add(bgGroup);
+
+  scene.add(new THREE.AmbientLight(0x223344, 0.6));
+  const goldLight = new THREE.PointLight(PALETTE.gold, 60, 0, 2);
+  goldLight.position.set(4, 3, 3);
+  scene.add(goldLight);
+  const magentaLight = new THREE.PointLight(PALETTE.magenta, 45, 0, 2);
+  magentaLight.position.set(-4, -2, 2);
+  scene.add(magentaLight);
+  const coolLight = new THREE.DirectionalLight(0x88aaff, 0.6);
+  coolLight.position.set(-2, 4, 5);
+  scene.add(coolLight);
 
   const bgMat = new THREE.ShaderMaterial({
     uniforms: { uTime: { value: 0 } },
@@ -604,142 +766,134 @@ async function initIceDragon() {
   bgPlane.position.z = -9;
   scene.add(bgPlane);
 
-  // --- Real refractive ice: MeshPhysicalMaterial with transmission. ---------
-  // No custom shader: a raw ShaderMaterial would freeze the rigged
-  // SkinnedMesh in its bind pose (no skinning chunks), so the wings would
-  // never flap. Transmission + env map does the ice look instead.
-  const iceMat = new THREE.MeshPhysicalMaterial({
-    color: 0xaaddff,
-    metalness: 0.1,
-    roughness: 0.15,
-    transmission: 0.9,
-    thickness: 2.0,
-    ior: 1.31,
-    clearcoat: 1.0,
-    transparent: true,
+  const knotGeo = new THREE.TorusKnotGeometry(
+    1.15, 0.34,
+    isMobile ? 140 : 220,
+    isMobile ? 24 : 36,
+  );
+  const knotMat = new THREE.MeshStandardMaterial({
+    color: 0x2a2a3a, metalness: 0.9, roughness: 0.28,
+    emissive: 0x0d0d18, emissiveIntensity: 0.6,
   });
+  const knot = new THREE.Mesh(knotGeo, knotMat);
+  knot.position.z = -1;
+  knot.rotation.set(0.25, 0, 0);
+  bgGroup.add(knot);
 
-  // --- Dragon ------------------------------------------------------------------
-  // The dragon assembly. The loaded model is normalized to a 2-unit base
-  // inside this group, so the scale/position below are the spec values:
-  // mobile 1.0 / y 1.5 (high, clear of the stats cards), desktop 1.5 / y 0.5.
-  const dragon = new THREE.Group();
-  scene.add(dragon);
-  let mixer = null;
-  let destroyed = false;
-
-  function layoutDragon() {
-    const mobile = window.innerWidth < 768;
-    if (mobile) {
-      dragon.scale.set(1.0, 1.0, 1.0);
-      dragon.position.y = 1.5;
-    } else {
-      dragon.scale.set(1.5, 1.5, 1.5);
-      dragon.position.y = 0.5;
-    }
-    dragon.position.x = 0;
-    dragon.position.z = 0;
+  const particleCount = isMobile ? 450 : 1400;
+  const pGeo = new THREE.BufferGeometry();
+  const pPos = new Float32Array(particleCount * 3);
+  const pCol = new Float32Array(particleCount * 3);
+  const gold = new THREE.Color(PALETTE.gold);
+  const magenta = new THREE.Color(PALETTE.magenta);
+  const white = new THREE.Color(0xffffff);
+  for (let i = 0; i < particleCount; i++) {
+    const r = 2.2 + Math.random() * 3.4;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    pPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+    pPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.7;
+    pPos[i * 3 + 2] = -1 + r * Math.cos(phi) * 0.6;
+    const c = Math.random() < 0.45 ? gold : Math.random() < 0.7 ? magenta : white;
+    pCol[i * 3] = c.r; pCol[i * 3 + 1] = c.g; pCol[i * 3 + 2] = c.b;
   }
-  layoutDragon();
-
-  const loader = new GLTFLoader();
-  loader.load(DRAGON_URL, (gltf) => {
-    if (destroyed) return;
-    const model = gltf.scene;
-    model.traverse((o) => {
-      if (o.isMesh) { o.material = iceMat; o.castShadow = false; o.receiveShadow = false; }
-    });
-    // Normalize the raw model to a 2-unit base, centered at the group origin.
-    // The raw model is ~5.5 units wide (its node carries a 100x scale), so
-    // the spec scales above apply on top of this base — otherwise scale 1.0
-    // would show a 5.5-unit dragon cropped on mobile.
-    // Measure raw geometry bounds, NOT Box3.setFromObject: on a rigged
-    // (skinned) model that measures bone-transformed vertices and gave a
-    // 492-unit box, shrinking the dragon to ~3 cm (invisible).
-    model.updateWorldMatrix(true, true);
-    const box = new THREE.Box3();
-    model.traverse((o) => {
-      if (o.isMesh && o.geometry) {
-        if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
-        box.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld));
-      }
-    });
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    const s = MODEL_BASE_SIZE / Math.max(size.x, size.y, size.z);
-    model.scale.setScalar(s);
-    model.position.set(-center.x * s, -center.y * s, -center.z * s);
-    dragon.add(model);
-    if (!prefersReduced && gltf.animations && gltf.animations.length) {
-      mixer = new THREE.AnimationMixer(model);
-      const clip = gltf.animations.find((c) => DRAGON_CLIP.test(c.name)) || gltf.animations[0];
-      mixer.clipAction(clip).play();
-    }
-    if (prefersReduced) renderFrame();
-  }, undefined, (err) => {
-    console.warn('Ice Dragon: could not load dragon.glb, hero continues without it.', err);
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  pGeo.setAttribute('color', new THREE.BufferAttribute(pCol, 3));
+  // Round soft dot sprite — without a map, PointsMaterial renders hard squares.
+  const dotCanvas = document.createElement('canvas');
+  dotCanvas.width = dotCanvas.height = 64;
+  const dctx = dotCanvas.getContext('2d');
+  const dg = dctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  dg.addColorStop(0, 'rgba(255,255,255,1)');
+  dg.addColorStop(0.4, 'rgba(255,255,255,0.85)');
+  dg.addColorStop(1, 'rgba(255,255,255,0)');
+  dctx.fillStyle = dg;
+  dctx.fillRect(0, 0, 64, 64);
+  const dotTexture = new THREE.CanvasTexture(dotCanvas);
+  const pMat = new THREE.PointsMaterial({
+    size: 0.035, vertexColors: true, transparent: true, opacity: 0.9, map: dotTexture, alphaTest: 0.01,
+    blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
   });
+  const particles = new THREE.Points(pGeo, pMat);
+  bgGroup.add(particles);
 
-  // --- Snow: soft round flakes, slow fall, sparse on mobile --------------------
-  function makeSnowSprite() {
-    const c = document.createElement('canvas');
-    c.width = 64; c.height = 64;
-    const g = c.getContext('2d');
-    const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-    grad.addColorStop(0, 'rgba(255,255,255,1)');
-    grad.addColorStop(0.4, 'rgba(255,255,255,0.6)');
-    grad.addColorStop(1, 'rgba(255,255,255,0)');
-    g.fillStyle = grad;
-    g.fillRect(0, 0, 64, 64);
-    return new THREE.CanvasTexture(c);
-  }
-  const snowCount = isMobile ? 300 : 700;
-  const snowGeo = new THREE.BufferGeometry();
-  const snowPos = new Float32Array(snowCount * 3);
-  const snowSpeed = new Float32Array(snowCount);
-  const snowPhase = new Float32Array(snowCount);
-  for (let i = 0; i < snowCount; i++) {
-    snowPos[i * 3] = (Math.random() - 0.5) * 13;
-    snowPos[i * 3 + 1] = (Math.random() - 0.5) * 8;
-    snowPos[i * 3 + 2] = -3 + Math.random() * 4;
-    snowSpeed[i] = 0.15 + Math.random() * 0.3;
-    snowPhase[i] = Math.random() * Math.PI * 2;
-  }
-  snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos, 3));
-  const snowMat = new THREE.PointsMaterial({
-    size: 0.05,
-    map: makeSnowSprite(),
+  const rt = new THREE.WebGLRenderTarget(2, 2, { samples: isMobile ? 0 : 4 });
+
+  const glassUniforms = {
+    tDiffuse: { value: rt.texture },
+    uResolution: { value: new THREE.Vector2(1, 1) },
+    uTime: { value: 0 },
+    uRefract: { value: isMobile ? 0.12 : 0.16 },
+    uDispersion: { value: 0.35 },
+    uRipple: { value: 0 },
+    uRimGold: { value: new THREE.Vector3(1.0, 0.667, 0.0) },
+    uRimMagenta: { value: new THREE.Vector3(1.0, 0.0, 1.0) },
+    uOpacity: { value: 0.96 },
+    uWobble: { value: isMobile ? 0.03 : 0.05 },
+  };
+  const glassMat = new THREE.ShaderMaterial({
+    uniforms: glassUniforms,
+    vertexShader: GLASS_VERTEX,
+    fragmentShader: GLASS_FRAGMENT,
     transparent: true,
-    opacity: 0.55,
-    color: 0xdff1ff,
-    blending: THREE.AdditiveBlending,
     depthWrite: false,
-    sizeAttenuation: true,
   });
-  const snow = new THREE.Points(snowGeo, snowMat);
-  bgGroup.add(snow);
 
-  // --- Sizing --------------------------------------------------------------------
+  const lensGeo = new THREE.SphereGeometry(1.35, isMobile ? 32 : 64, isMobile ? 32 : 64);
+  const mainLens = new THREE.Mesh(lensGeo, glassMat);
+  mainLens.scale.set(1, 1, 0.45);
+  mainLens.position.set(0, 0, 1.2);
+  mainLens.renderOrder = 10;
+  scene.add(mainLens);
+
+  const blobGeo = new THREE.SphereGeometry(1, isMobile ? 24 : 48, isMobile ? 24 : 48);
+  const blob1 = new THREE.Mesh(blobGeo, glassMat);
+  blob1.scale.set(0.45, 0.45, 0.22);
+  blob1.renderOrder = 10;
+  scene.add(blob1);
+  const blob2 = new THREE.Mesh(blobGeo, glassMat);
+  blob2.scale.set(0.32, 0.32, 0.16);
+  blob2.renderOrder = 10;
+  scene.add(blob2);
+  const glassMeshes = [mainLens, blob1, blob2];
+  // Mobile: the full-size lens spans the whole narrow screen, so shrink it.
+  const lensScale = isMobile ? 0.68 : 1;
+
+  // Fit factor: on narrow screens the background group scales down so the
+  // knot stays in frame; the lens keeps full size and its travel is clamped.
+  let fit = 1;
   function resize() {
     const w = wrap.clientWidth || 1;
     const h = wrap.clientHeight || 1;
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    renderer.setSize(w, h, false); // false: CSS controls display size
-    layoutDragon(); // re-apply the mobile/desktop breakpoint on resize
+    renderer.setSize(w, h, false);
+    rt.setSize(Math.floor(w * dpr * rtScale), Math.floor(h * dpr * rtScale));
+    glassUniforms.uResolution.value.set(w * dpr, h * dpr);
+    fit = Math.min(1, camera.aspect * 1.05);
+    bgGroup.scale.setScalar(fit);
   }
   resize();
 
-  // --- Pointer: gentle parallax (dragon turns toward the pointer) -----------------
   const pointer = { x: 0, y: 0 };
-  const smooth = { x: 0, y: 0 };
+  const lens = { x: 0, y: 0, vx: 0, vy: 0 };
+  let pointerDown = false;
+  let ripple = 0;
+
   function onPointerMove(e) {
     const r = wrap.getBoundingClientRect();
     pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1;
     pointer.y = -(((e.clientY - r.top) / r.height) * 2 - 1);
   }
+  function onPointerDown(e) { pointerDown = true; ripple = 1; onPointerMove(e); }
+  function onPointerUp() { pointerDown = false; }
 
   function renderFrame() {
+    for (const m of glassMeshes) m.visible = false;
+    renderer.setRenderTarget(rt);
+    renderer.render(scene, camera);
+    for (const m of glassMeshes) m.visible = true;
+    renderer.setRenderTarget(null);
     renderer.render(scene, camera);
   }
 
@@ -752,35 +906,36 @@ async function initIceDragon() {
   function frame() {
     if (!running) return;
     raf = requestAnimationFrame(frame);
-    const dt = Math.min(clock.getDelta(), 0.05); // clamp tab-switch jumps
+    const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
 
-    smooth.x += (pointer.x - smooth.x) * 0.05;
-    smooth.y += (pointer.y - smooth.y) * 0.05;
+    const stiffness = pointerDown ? 0.14 : 0.05;
+    const damping = pointerDown ? 0.82 : 0.94;
+    const tx = pointer.x * 2.3 * Math.max(fit, 0.55);
+    const ty = pointer.y * 1.4;
+    lens.vx += (tx - lens.x) * stiffness;
+    lens.vy += (ty - lens.y) * stiffness;
+    lens.vx *= damping;
+    lens.vy *= damping;
+    lens.x += lens.vx;
+    lens.y += lens.vy;
+    mainLens.position.set(lens.x, lens.y, 1.2);
+    const pulse = 1 + ripple * 0.1;
+    mainLens.scale.set(pulse * lensScale, pulse * lensScale, 0.45);
+    ripple *= 0.94;
 
-    if (mixer) mixer.update(dt);
+    blob1.position.set(Math.sin(t * 0.3) * 3.2 * fit, Math.cos(t * 0.23) * 1.6, 0.6);
+    blob2.position.set(Math.cos(t * 0.21) * 2.8 * fit, Math.sin(t * 0.27) * 1.9, 0.9);
 
-    // Dragon: slow sway + turn toward the pointer.
-    dragon.rotation.y = DRAGON_YAW + Math.sin(t * 0.15) * 0.22 + smooth.x * 0.3;
-    dragon.rotation.x = smooth.y * -0.08;
-
-    // Snow: fall + faint sway, wrapping at the bottom.
-    const pos = snowGeo.attributes.position.array;
-    for (let i = 0; i < snowCount; i++) {
-      pos[i * 3 + 1] -= snowSpeed[i] * dt;
-      pos[i * 3] += Math.sin(t * 0.6 + snowPhase[i]) * 0.0012;
-      if (pos[i * 3 + 1] < -4) {
-        pos[i * 3 + 1] = 4;
-        pos[i * 3] = (Math.random() - 0.5) * 13;
-      }
-    }
-    snowGeo.attributes.position.needsUpdate = true;
-
+    knot.rotation.y += dt * 0.12;
+    knot.rotation.x = 0.25 + Math.sin(t * 0.1) * 0.08;
+    particles.rotation.y += dt * 0.02;
     bgMat.uniforms.uTime.value = t;
+    glassUniforms.uTime.value = t;
+    glassUniforms.uRipple.value = ripple;
 
-    // Subtle parallax of the snow field, eased toward the pointer.
-    bgGroup.rotation.y += (smooth.x * 0.12 - bgGroup.rotation.y) * 0.04;
-    bgGroup.rotation.x += (-smooth.y * 0.08 - bgGroup.rotation.x) * 0.04;
+    bgGroup.rotation.y += (pointer.x * 0.18 - bgGroup.rotation.y) * 0.04;
+    bgGroup.rotation.x += (-pointer.y * 0.12 - bgGroup.rotation.x) * 0.04;
 
     renderFrame();
   }
@@ -797,6 +952,7 @@ async function initIceDragon() {
   }
 
   if (prefersReduced) {
+    glassUniforms.uTime.value = 0;
     renderFrame();
   } else {
     startLoop();
@@ -836,10 +992,13 @@ async function initIceDragon() {
 
   if (!prefersReduced) {
     wrap.addEventListener('pointermove', onPointerMove, { passive: true });
+    wrap.addEventListener('pointerdown', onPointerDown, { passive: true });
+    wrap.addEventListener('pointerup', onPointerUp, { passive: true });
+    wrap.addEventListener('pointercancel', onPointerUp, { passive: true });
+    wrap.addEventListener('pointerleave', onPointerUp, { passive: true });
   }
 
   function destroy() {
-    destroyed = true;
     stopLoop();
     io.disconnect();
     if (ro) ro.disconnect();
@@ -847,6 +1006,10 @@ async function initIceDragon() {
     document.removeEventListener('visibilitychange', onVisibility);
     window.removeEventListener('pagehide', destroy);
     wrap.removeEventListener('pointermove', onPointerMove);
+    wrap.removeEventListener('pointerdown', onPointerDown);
+    wrap.removeEventListener('pointerup', onPointerUp);
+    wrap.removeEventListener('pointercancel', onPointerUp);
+    wrap.removeEventListener('pointerleave', onPointerUp);
     scene.traverse((o) => {
       if (o.geometry) o.geometry.dispose();
       if (o.material) {
@@ -857,15 +1020,15 @@ async function initIceDragon() {
         }
       }
     });
-    snowMat.map.dispose();
+    rt.dispose();
     renderer.dispose();
     renderer.forceContextLoss();
-    delete wrap.dataset.iceInit;
+    delete wrap.dataset.lgInit;
   }
   window.addEventListener('pagehide', destroy);
 }
 
-initIceDragon();
+initLiquidGlass();
 </script>
 </body>
 </html>
