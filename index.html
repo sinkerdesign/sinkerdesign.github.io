@@ -405,7 +405,7 @@ var startBtn=document.getElementById('startBtn'),pauseBtn=document.getElementByI
 var STR={fa:{start:'ماربازی',startSub:'برای شروع، یک جهت را انتخاب کن یا دکمه را بزن — سیب بخور، به دیوار و خودت نزن!',pause:'مکث',pauseSub:'برای ادامه P یا Space را بزن',over:'بازی تمام شد!',again:'دوباره بازی کن',resume:'ادامه',levelUp:'سطح',newBest:'🏆 رکورد جدید!',startBtn:'شروع بازی',pauseBtn:'مکث',score:'امتیاز',best:'بهترین',level:'سطح'},
 en:{start:'Snake',startSub:'Pick a direction or press Start — eat apples, avoid the walls and yourself!',pause:'Paused',pauseSub:'Press P or Space to resume',over:'Game over!',again:'Play again',resume:'Resume',levelUp:'Level',newBest:'🏆 New best!',startBtn:'Start game',pauseBtn:'Pause',score:'Score',best:'Best',level:'Level'},
 ar:{start:'لعبة الثعبان',startSub:'اختر اتجاهًا أو اضغط ابدأ — كل التفاح وتجنّب الجدران ونفسك!',pause:'إيقاف مؤقت',pauseSub:'اضغط P أو مسافة للمتابعة',over:'انتهت اللعبة!',again:'العب مجددًا',resume:'متابعة',levelUp:'مستوى',newBest:'🏆 رقم قياسي جديد!',startBtn:'ابدأ اللعب',pauseBtn:'إيقاف',score:'النقاط',best:'الأفضل',level:'المستوى'}};
-function S(){try{return STR[curLang]||STR.fa;}catch(e){return STR.fa;}}
+function tr(){try{return STR[curLang]||STR.fa;}catch(e){return STR.fa;}}
 try{best=+(localStorage.getItem('sd-snake-best')||0);}catch(e){best=0;}
 try{muted=localStorage.getItem('sd-snake-sound')==='off';}catch(e){}
 var AC=null;
@@ -470,8 +470,8 @@ function draw(){
 }
 function burst(x,y,gold){for(var i=0;i<14;i++){var a=Math.random()*Math.PI*2,sp=1+Math.random()*2.4;parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,r:2+Math.random()*2.5,life:1,c:gold?'#ffd60a':(Math.random()<.5?'#ffe066':'#7df9c8')});}}
 function reset(d){var dd=d||{x:1,y:0};snake=[{x:10,y:10},{x:10-dd.x,y:10-dd.y},{x:10-2*dd.x,y:10-2*dd.y}];dir={x:dd.x,y:dd.y};queue=[];score=0;apples=0;level=1;newBest=false;parts=[];floats=[];obstacles=[];placeFood();updateScore();}
-function refreshButtons(){if(state==='idle'){startBtn.textContent=S().startBtn;ovBtn.textContent=S().startBtn;pauseBtn.disabled=true;pauseBtn.textContent='⏸';}else if(state==='run'){startBtn.textContent=S().pauseBtn;ovBtn.textContent=S().resume;pauseBtn.disabled=false;pauseBtn.textContent='⏸';}else if(state==='pause'){startBtn.textContent=S().resume;ovBtn.textContent=S().resume;pauseBtn.disabled=false;pauseBtn.textContent='▶';}else{startBtn.textContent=S().again;ovBtn.textContent=S().again;pauseBtn.disabled=true;pauseBtn.textContent='⏸';}}
-function showOverlay(kind){if(kind==='start'){ovTitle.textContent=S().start;ovSub.textContent=S().startSub;ovStats.textContent='';}else if(kind==='pause'){ovTitle.textContent=S().pause;ovSub.textContent=S().pauseSub;ovStats.textContent=S().score+': '+score+' · '+S().best+': '+best+' · '+S().level+': '+level;}else{ovTitle.textContent=S().over;ovSub.textContent='';ovStats.textContent=S().score+': '+score+' · '+S().best+': '+best+' · '+S().level+': '+level+(newBest?' · '+S().newBest:'');}ov.hidden=false;refreshButtons();}
+function refreshButtons(){if(state==='idle'){startBtn.textContent=tr().startBtn;ovBtn.textContent=tr().startBtn;pauseBtn.disabled=true;pauseBtn.textContent='⏸';}else if(state==='run'){startBtn.textContent=tr().pauseBtn;ovBtn.textContent=tr().resume;pauseBtn.disabled=false;pauseBtn.textContent='⏸';}else if(state==='pause'){startBtn.textContent=tr().resume;ovBtn.textContent=tr().resume;pauseBtn.disabled=false;pauseBtn.textContent='▶';}else{startBtn.textContent=tr().again;ovBtn.textContent=tr().again;pauseBtn.disabled=true;pauseBtn.textContent='⏸';}}
+function showOverlay(kind){if(kind==='start'){ovTitle.textContent=tr().start;ovSub.textContent=tr().startSub;ovStats.textContent='';}else if(kind==='pause'){ovTitle.textContent=tr().pause;ovSub.textContent=tr().pauseSub;ovStats.textContent=tr().score+': '+score+' · '+tr().best+': '+best+' · '+tr().level+': '+level;}else{ovTitle.textContent=tr().over;ovSub.textContent='';ovStats.textContent=tr().score+': '+score+' · '+tr().best+': '+best+' · '+tr().level+': '+level+(newBest?' · '+tr().newBest:'');}ov.hidden=false;refreshButtons();}
 function hideOverlay(){ov.hidden=true;refreshButtons();}
 function startWith(d){if(loop)clearInterval(loop);reset(d);state='run';loop=setInterval(step,speed());hideOverlay();draw();startRender();}
 function pause(){if(state!=='run')return;state='pause';clearInterval(loop);loop=null;showOverlay('pause');draw();}
@@ -495,7 +495,7 @@ function step(){
    if(gold)sGold();else sEat();
    placeFood();
    var nl=1+Math.floor(apples/5);
-   if(nl>level){level=nl;buildObstacles();sLevel();floats.push({txt:S().levelUp+' '+level,x:W/2,y:60,life:1});}
+   if(nl>level){level=nl;buildObstacles();sLevel();floats.push({txt:tr().levelUp+' '+level,x:W/2,y:60,life:1});}
    clearInterval(loop);loop=setInterval(step,speed());
  }else{snake.pop();}
  draw();updateScore();
@@ -512,11 +512,11 @@ function stopRender(){if(raf){cancelAnimationFrame(raf);raf=0;}}
 function gameInView(){var r=cv.getBoundingClientRect();return r.bottom>0&&r.top<window.innerHeight;}
 function setDir(x,y){
  if(state==='over')return;
+ if(state==='idle'){startWith({x:x,y:y});return;}
  var last=queue.length?queue[queue.length-1]:dir;
  if(x===-last.x&&y===-last.y)return;
  if(x===last.x&&y===last.y)return;
  if(queue.length<3)queue.push({x:x,y:y});
- if(state==='idle')startWith({x:x,y:y});
 }
 startBtn.addEventListener('click',function(){toggleAction();this.blur();});
 ovBtn.addEventListener('click',function(){toggleAction();this.blur();});
