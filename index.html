@@ -217,6 +217,42 @@ html[data-theme="dark"] .bar{background:var(--card);box-shadow:var(--inset)}
 .gbtn-sec{border:none;box-shadow:var(--shadow-sm)}
 .gamecard{padding:20px}
 @media(max-width:640px){.hero{padding:36px 16px 26px;margin-top:12px;border-radius:22px}}
+
+/* ===== HERO 3D · light CSS-only depth (2026-11-10) =====
+   No Three.js, no images: soft clay shapes + parallax.
+   Layer sits behind the text; hero clips it with its round corners. */
+.hero{position:relative;overflow:hidden}
+.hero3d{position:absolute;inset:0;pointer-events:none;z-index:0}
+.hero>*:not(.hero3d){position:relative;z-index:1}
+.hero3d .h3d{position:absolute;will-change:transform}
+.hero3d .shape{display:block}
+.blob1{top:-110px;inset-inline-end:-80px}
+.blob2{bottom:-100px;inset-inline-start:-70px}
+.pos-sphere{top:16%;inset-inline-start:5%}
+.pos-ring{top:58%;inset-inline-end:7%}
+.pos-cube{top:6%;inset-inline-end:15%}
+.pos-dot1{top:38%;inset-inline-start:14%}
+.pos-dot2{top:74%;inset-inline-end:22%}
+.blob{width:340px;height:340px;border-radius:50%;filter:blur(28px);animation:hdrift 13s ease-in-out infinite}
+.b-blue{background:radial-gradient(circle at 40% 40%,rgba(37,99,235,.55),rgba(37,99,235,0) 68%)}
+.b-teal{background:radial-gradient(circle at 40% 40%,rgba(13,148,136,.5),rgba(13,148,136,0) 68%)}
+.sphere{width:104px;height:104px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff,#bfdbfe 45%,#2563eb 100%);box-shadow:16px 22px 38px rgba(37,99,235,.35),inset -8px -10px 20px rgba(30,64,175,.45)}
+.ring{width:118px;height:118px;border-radius:50%;border:15px solid rgba(13,148,136,.55);box-shadow:12px 16px 30px rgba(13,148,136,.28),inset 6px 8px 18px rgba(13,148,136,.25);animation:hring 9s ease-in-out 1s infinite}
+.cube{width:88px;height:88px;border-radius:24px;background:linear-gradient(135deg,#fcd34d,#f59e0b);box-shadow:14px 18px 30px rgba(245,158,11,.38),inset 4px 6px 12px rgba(255,255,255,.65),inset -6px -8px 14px rgba(180,83,9,.35);animation:hcube 8s ease-in-out infinite}
+.dot{border-radius:50%}
+.d-sky{width:20px;height:20px;background:radial-gradient(circle at 35% 30%,#fff,#7dd3fc 55%,#0ea5e9);box-shadow:6px 8px 16px rgba(14,165,233,.4)}
+.d-amber{width:14px;height:14px;background:radial-gradient(circle at 35% 30%,#fff,#fcd34d 55%,#f59e0b);box-shadow:5px 7px 14px rgba(245,158,11,.4)}
+.f1{animation:hfloat 7s ease-in-out infinite}
+.f2{animation:hfloat 9s ease-in-out 1s infinite}
+.f3{animation:hfloat2 6s ease-in-out .5s infinite}
+@keyframes hfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes hfloat2{0%,100%{transform:translateY(0)}50%{transform:translateY(12px)}}
+@keyframes hdrift{0%,100%{transform:translate(0,0)}50%{transform:translate(18px,14px)}}
+@keyframes hring{0%,100%{transform:rotateX(52deg) translateY(0)}50%{transform:rotateX(52deg) translateY(-12px)}}
+@keyframes hcube{0%,100%{transform:rotate(18deg) translateY(0)}50%{transform:rotate(18deg) translateY(-12px) rotate(6deg)}}
+html[data-theme="dark"] .hero3d{opacity:.75}
+@media(max-width:640px){.hero3d{transform:scale(.68);opacity:.8}.blob{width:260px;height:260px}}
+@media(prefers-reduced-motion:reduce){.hero3d .shape{animation:none}}
 </style>
 </head>
 <body>
@@ -235,6 +271,15 @@ html[data-theme="dark"] .bar{background:var(--card);box-shadow:var(--inset)}
   </nav>
 
   <header class="hero">
+  <div class="hero3d" aria-hidden="true">
+    <div class="h3d blob1" data-depth="6"><i class="shape blob b-blue"></i></div>
+    <div class="h3d blob2" data-depth="8"><i class="shape blob b-teal"></i></div>
+    <div class="h3d pos-sphere" data-depth="16"><i class="shape sphere f1"></i></div>
+    <div class="h3d pos-ring" data-depth="22"><i class="shape ring"></i></div>
+    <div class="h3d pos-cube" data-depth="26"><i class="shape cube"></i></div>
+    <div class="h3d pos-dot1" data-depth="32"><i class="shape dot d-sky f3"></i></div>
+    <div class="h3d pos-dot2" data-depth="30"><i class="shape dot d-amber f2"></i></div>
+  </div>
     <div class="badge"><span class="dot"></span><span data-i18n="badge">آماده همکاری در پروژه‌های بین‌المللی — Worldwide, Remote</span></div>
     <h1><span class="en grad">Sinker Design</span></h1>
     <div class="scope en">DESIGN — CODE — DEBUG — WIDGETS — AI AGENTS</div>
@@ -590,6 +635,30 @@ cv.addEventListener('click',function(){try{cv.focus();}catch(e){}});
 if('IntersectionObserver' in window){new IntersectionObserver(function(es){es.forEach(function(en){if(!en.isIntersecting)pause();});},{threshold:0}).observe(cv);}
 document.querySelectorAll('.langbar button').forEach(function(b){b.addEventListener('click',function(){setTimeout(function(){if(state!=='run')showOverlay(state==='pause'?'pause':state==='over'?'over':'start');refreshButtons();updateDiffName();},0);});});
 reset(null);draw();showOverlay('start');
+})();
+</script>
+<script>
+// Hero 3D parallax — mousemove on desktop, device tilt on mobile.
+// Layers carry data-depth; smooth-lerped so it feels physical, not jumpy.
+(function(){
+ const hero=document.querySelector('.hero'),layer=document.querySelector('.hero3d');
+ if(!hero||!layer)return;
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const items=[...layer.querySelectorAll('[data-depth]')];
+ let tx=0,ty=0,cx=0,cy=0,raf=null;
+ function loop(){cx+=(tx-cx)*.08;cy+=(ty-cy)*.08;
+  items.forEach(el=>{const d=+el.dataset.depth||10;
+   el.style.transform='translate3d('+(-cx*d).toFixed(2)+'px,'+(-cy*d).toFixed(2)+'px,0)'});
+  if(Math.abs(tx-cx)>.001||Math.abs(ty-cy)>.001){raf=requestAnimationFrame(loop)}else{raf=null}}
+ function move(x,y){tx=x;ty=y;if(!raf)raf=requestAnimationFrame(loop)}
+ hero.addEventListener('mousemove',e=>{const r=hero.getBoundingClientRect();
+  move((e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5)});
+ hero.addEventListener('mouseleave',()=>move(0,0));
+ if(matchMedia('(hover: none)').matches&&'DeviceOrientationEvent' in window){
+  addEventListener('deviceorientation',e=>{
+   if(e.gamma==null||e.beta==null)return;
+   move(Math.max(-.5,Math.min(.5,e.gamma/45)),Math.max(-.5,Math.min(.5,(e.beta-45)/45)))},{passive:true});
+ }
 })();
 </script>
 </body>
