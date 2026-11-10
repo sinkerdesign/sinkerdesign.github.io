@@ -170,6 +170,15 @@ html[data-theme="light"] .step .sn{-webkit-text-stroke:1.5px rgba(15,27,45,.25)}
 .gscore{font-size:14px;color:var(--mut);font-weight:600}
 .gscore b{color:var(--txt)}
 #snake{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;border-radius:14px;touch-action:none}
+.board-wrap{position:relative;border-radius:14px;overflow:hidden}
+.game-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(6,12,10,.78);color:#fff;text-align:center;padding:20px;z-index:2}
+.game-overlay[hidden]{display:none}
+.go-title{font-size:26px;font-weight:900}
+.go-sub{font-size:14.5px;line-height:1.9;color:rgba(255,255,255,.88);max-width:340px}
+.go-stats{font-size:15px;font-weight:800;color:#ffe066}
+.gbtn-sec{background:var(--card);color:var(--txt);border:1px solid var(--stroke);box-shadow:var(--shadow);padding:12px 14px}
+.gbtn-sec:disabled{opacity:.45;cursor:default;transform:none}
+#snake:focus{outline:2px solid var(--a2);outline-offset:2px}
 .game-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
 .gbtn{padding:12px 26px;border-radius:12px;border:0;background:linear-gradient(90deg,var(--a1),var(--a2));color:#fff;box-shadow:0 10px 26px rgba(37,99,235,.3);font-family:inherit;font-weight:800;font-size:15px;cursor:pointer;transition:all .35s var(--ease)}
 .gbtn:hover{transform:translateY(-2px)}
@@ -255,11 +264,21 @@ html[data-theme="light"] .step .sn{-webkit-text-stroke:1.5px rgba(15,27,45,.25)}
   <section id="game">
     <div class="sec-head reveal"><div class="kicker en">PLAY A QUICK GAME</div><h2 data-i18n="gameH">یه دست <span class="grad">ماربازی</span></h2><p data-i18n="gameP">قبل از اینکه بری سراغ پروژه‌ات، یه دست بازی کن — رکورد بزن؛ بهترین امتیازت توی مرورگرت می‌مونه.</p></div>
     <div class="gamecard reveal">
-      <div class="game-top"><span>🐍 <span data-i18n="gameName">ماربازی</span></span><span class="gscore"><span data-i18n="scoreLbl">امتیاز</span>: <b id="score">0</b> · <span data-i18n="bestLbl">بهترین</span>: <b id="best">0</b></span></div>
-      <canvas id="snake" width="400" height="400"></canvas>
+      <div class="game-top"><span>🐍 <span data-i18n="gameName">ماربازی</span></span><span class="gscore"><span data-i18n="scoreLbl">امتیاز</span>: <b id="score">0</b> · <span data-i18n="bestLbl">بهترین</span>: <b id="best">0</b> · <span data-i18n="levelLbl">سطح</span>: <b id="level">1</b></span></div>
+      <div class="board-wrap">
+        <canvas id="snake" width="400" height="400" tabindex="0"></canvas>
+        <div class="game-overlay" id="gameOverlay">
+          <div class="go-title" id="ovTitle">ماربازی</div>
+          <div class="go-sub" id="ovSub">برای شروع، یک جهت را انتخاب کن یا دکمه را بزن — سیب بخور، به دیوار و خودت نزن!</div>
+          <div class="go-stats" id="ovStats"></div>
+          <button class="gbtn" id="ovBtn">شروع بازی</button>
+        </div>
+      </div>
       <div class="game-bar">
         <button id="startBtn" class="gbtn" data-i18n="startBtn">شروع بازی</button>
-        <span class="ghint" data-i18n="gameHint">با کلیدهای جهت‌دار، WASD یا سوایپ حرکت کن — سیب بخور، به دیوار و خودت نزن!</span>
+        <button id="pauseBtn" class="gbtn gbtn-sec" aria-label="pause">⏸</button>
+        <button id="soundBtn" class="gbtn gbtn-sec" aria-label="sound">🔊</button>
+        <span class="ghint" data-i18n="gameHint">با کلیدهای جهت‌دار، WASD یا سوایپ حرکت کن — P مکث می‌کند، Enter شروع دوباره؛ سیب طلایی ۵۰ امتیاز دارد!</span>
       </div>
       <div class="dpad">
         <span></span><button data-dir="0,-1" aria-label="up">↑</button><span></span>
@@ -343,8 +362,8 @@ topBtn.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
 const FA={};
 document.querySelectorAll('[data-i18n]').forEach(el=>FA[el.dataset.i18n]=el.innerHTML);
 const L={
-ar:{navSkills:'المهارات',navServices:'التخصصات',navWorks:'المختبر الحي',navProcess:'طريقة العمل',navContact:'تواصل معنا',badge:'متاحون لمشاريع دولية — Worldwide, Remote',rolePre:'نصمّم ونبني',desc:'لسنا مجرد «تصميم»؛ نحن استوديو منتجات متكامل: <b>تصميم، برمجة كاملة، تصحيح أخطاء متخصص، بناء ودجت وأدوات مخصصة، ووكلاء ذكاء اصطناعي</b> — من الفكرة إلى التنفيذ والنمو، بالمستوى الذي يطلبه السوق العالمي.',ctaStart:'✈️ ابدأ مشروعك',ctaWorks:'شاهد الخدمات',st1:'سنوات الخبرة',st2:'مشاريع',st3:'عملاء',st4:'دول',manifesto:'على المستوى الاحترافي، الناتج ليس موقعًا جميلًا فقط؛ <span class="hl">بل منتج يعمل بلا عيوب</span> — سريع وآمن وخالٍ من الأخطاء وجاهز للنمو. وهذا بالضبط ما نسلّمه.',p1t:'تصميم + برمجة',p1d:'من التصميم إلى آخر سطر برمجي تحت سقف واحد؛ بلا وسطاء وبلا فجوة بين «المخطط» و«التنفيذ».',p2t:'تصحيح وبناء أدوات',p2d:'إصلاح الأخطاء المعقدة، إنقاذ المشاريع المتعثرة، وبناء ودجت وأدوات مخصصة على مقاس احتياجك.',p3t:'أتمتة ونمو',p3d:'وكلاء ذكاء اصطناعي لأتمتة المهام، وسيو يحوّل الزيارات إلى عملاء.',skH:'مهارات <span class="grad">احترافية</span>',skP:'عشرة تخصصات عميقة، فريق واحد — إتقان بالمستوى الذي تطلبه المشاريع الدولية',skHtml:'بنية دلالية وإمكانية وصول ومعايير ويب حديثة',skCss:'حركات سينمائية وموشن ديزاين وواجهات مبهرة',skJs:'تطبيقات معقدة وتفاعل لحظي وودجت وأدوات ويب',skTs:'جافاسكريبت آمنة الأنواع على نطاق واسع؛ كود موثوق وقابل للصيانة',skAi:'دمج نماذج اللغة وبناء مزايا منتجات ذكية',skAgent:'كتابة وكلاء باحتراف: مستقلّون ومتعددو الخطوات ويدعمون استدعاء الأدوات',skUi:'تصميم منتج قائم على البيانات؛ تجربة ترفع معدل التحويل',skSeo:'سيو تقني واستراتيجية محتوى للسوق المحلي والعالمي',skPhp:'باك-إند وواجهات برمجة مخصصة، ووردبريس/ووكومرس وأنظمة خاصة',skAstro:'إطار أسترو الحديث؛ مواقع فائقة السرعة ببنية الجزر وسيو ممتاز',svH:'التخصصات <span class="grad">الأساسية</span>',svP:'ليس تصميمًا فقط — تصميم وبرمجة وتصحيح وبناء أدوات ونمو، كلها تحت سقف واحد',c1t:'تصميم UI / UX',c1d:'واجهات بمعايير عالمية؛ جميلة وبديهية ومصممة لتحويل الزائر إلى عميل.',c2t:'برمجة كاملة (Full-Stack)',c2d:'واجهة وخادم مخصصان بـ JavaScript وPHP — سريعة وآمنة وقابلة للتوسع، بلا قوالب جاهزة.',c3t:'تصحيح الأخطاء (Debugging)',c3d:'تشخيص عميق وإصلاح للأخطاء المعقدة؛ إنقاذ وتحسين المشاريع المتوقفة في منتصف الطريق.',c4t:'بناء الودجت والأدوات',c4d:'ودجت وإضافات وأدوات ويب مخصصة — بالضبط ما ينقص منتجك.',c5t:'وكلاء الذكاء الاصطناعي',c5d:'كتابة أنظمة وكلاء مستقلة: دعم عملاء، إنتاج محتوى، تحليل بيانات وأتمتة عمليات.',c6t:'دمج الذكاء الاصطناعي',c6d:'ربط نماذج اللغة بمنتجك؛ روبوت محادثة ومساعد ذكي خاص بعلامتك.',c7t:'متجر إلكتروني',c7d:'متجر مخصص مبرمج بـ PHP وJavaScript، أو على ووردبريس وووكومرس — الخيار حسب حاجة المشروع؛ بوابات دفع وسيو منتجات وتجربة شراء سلسة.',c8t:'سيو ونمو دولي',c8d:'سيو تقني ومحتوى يضعك في الصفحة الأولى من جوجل في أي سوق ويثبّتك هناك.',wH:'أعمال <span class="grad">مختارة</span>',wP:'كل مشروع مسألة عمل حقيقية — ونتيجة قابلة للقياس',w1t:'متجر إلكتروني',w1d:'تصميم وتطوير متاجر إلكترونية مخصصة وووردبريس؛ بوابات دفع وسيو منتجات وتجربة شراء تبيع.',w2t:'نظام وكلاء أذكياء',w2d:'وكلاء مستقلّون لأتمتة العمليات اليومية — من الرد على العملاء وإنتاج المحتوى إلى التقارير التلقائية.',w3t:'ودجت وأدوات مخصصة',w3d:'أدوات ويب وودجت خاصة للفرق والمنتجات — خفيفة وسريعة وعلى مقاس الحاجة تمامًا.',prH:'طريقة <span class="grad">العمل</span>',prP:'شفافة، خطوة بخطوة، بلا مفاجآت',s1t:'اكتشاف واستراتيجية',s1d:'نفهم هدف العمل والجمهور والمنافسين بدقة ونرسم خارطة طريق المنتج.',s2t:'تصميم التجربة',s2d:'من الوايرفريم إلى التصميم النهائي؛ كل صفحة بهدف واضح وقابل للدفاع.',s3t:'تطوير وتصحيح وذكاء اصطناعي',s3d:'برمجة كاملة وبناء ودجت ووكلاء أذكياء، مع اختبار ومراجعة في كل مرحلة.',s4t:'إطلاق ونمو',s4d:'نشر وسيو وتحسين مستمر؛ المنتج بعد الإطلاق يبدأ النمو فعليًا.',qH:'ماذا يقول <span class="grad">العملاء</span>',q1:'«مستوى عملهم يوازي الفرق الأجنبية التي عملنا معها من قبل؛ في التصميم وفي الالتزام بالمواعيد معًا.»',q1w:'مدير منتج — شركة ناشئة أوروبية',q2:'«وكيل الذكاء الاصطناعي الذي بنوه يوفّر على فريقنا ساعات من العمل المتكرر كل أسبوع. أفضل استثمار لهذا العام.»',q2w:'مدير عمليات — عمل إلكتروني',q3:'«متجرنا بعد إعادة التصميم والسيو صار أسرع وتضاعفت مبيعاته. فريق واحد، كل التخصصات.»',q3w:'مدير — متجر إلكتروني',fH:'أسئلة <span class="grad">شائعة</span>',f1q:'هل تقبلون مشاريع خارج بلدكم؟',f1a:'نعم؛ نعمل عن بُعد بالكامل وبعملية تواصل شفافة، ولدينا خبرة مع عملاء في عدة دول.',f2q:'هل تقومون بالتصميم فقط أم بالبرمجة أيضًا؟',f2a:'كلاهما — وأكثر: برمجة كاملة، تصحيح أخطاء المشاريع الحالية، بناء ودجت وأدوات مخصصة، وتطوير وكلاء ذكاء اصطناعي.',f3q:'من أين نبدأ؟',f3a:'يكفي أن تراسلنا عبر زر «تواصل معنا» في تيليجرام؛ نسمع فكرتك ونعطيك خارطة طريق وتقديرًا شفافًا.',labH:'المختبر <span class="grad">الحيّ</span>',labP:'بدل الادعاءات والأعمال المزيّفة، ثلاث أدوات حقيقية من هذا الاستوديو — جرّبها هنا الآن',d1t:'استوديو التدرّجات',d1d:'غيّر الألوان والزاوية واحصل على CSS جاهز',d2t:'محادثة مع وكيل',d2d:'وكيل حقيقي يجيبك هنا — اسأل',d3t:'متجر مصغّر',d3d:'سلّة شراء حقيقية مع خصم — جرّب كود SINKER10',copyBtn:'نسخ CSS',sendBtn:'إرسال',totalLbl:'المجموع:',discBtn:'تطبيق الخصم',dbgH:'تصحيح <span class="grad">حيّ</span>',dbgP:'بدل أقوال مزيّفة، شاهد كيف يُنفَّذ تشخيص مشروع حقيقي خطوة بخطوة — اضغط الزر',runBtn:'▶ تشغيل التشخيص',footBig:'مشروعك القادم قد يكون العمل<br>الذي يتحدث عنه السوق.',footP:'من فكرة خام إلى منتج بمعايير عالمية — نحن بجانبك.',footCta:'✈️ تواصل معنا على تيليجرام — ',footSig:'استوديو تصميم وبرمجة ووكلاء ذكاء اصطناعي',navTerm:'طرفية لينكس',termH:'طرفية <span class="grad">لينكس</span>',termP:'طرفية عرض بمذاق لينكس الحقيقي — بلا تنزيل وبلا إقلاع وبلا أعطال. تعمل تلقائيًا، ويمكنك أنت أيضًا تجربة بعض الأوامر.',bootBtn:'تشغيل لينكس',restartBtn:'إعادة تشغيل',termStatus:'تعمل تلقائيًا — أو اكتب أمرًا بنفسك؛ جرّب help.',termNote:'هذا عرض تمثيلي وليس لينكس حقيقيًا — لكن أوامره تجيب: جرّب help وls وwhoami وuptime وclear.',replayBtn:'إعادة التشغيل',navCode:'نموذج كود',codeH:'الكود <span class="grad">الذي نكتبه</span>',codeP:'بدل الادعاءات، انظر إلى شكل الكود الذي نسلّمه: نظيف وواضح وقابل للاختبار. هذا نموذج مبسّط من نمط الوكلاء الذي نستخدمه في المشاريع الحقيقية.',navGame:'لعبة',gameH:'العب <span class="grad">لعبة الثعبان</span>',gameP:'قبل أن تبدأ مشروعك، العب جولة سريعة — حطّم رقمك القياسي، فأفضل نتيجة تبقى محفوظة في متصفحك.',gameName:'لعبة الثعبان',scoreLbl:'النقاط',bestLbl:'الأفضل',startBtn:'ابدأ اللعب',gameHint:'تحرك بالأسهم أو WASD أو المسح — كل التفاح ولا تصطدم بالجدار أو بنفسك!'},
-en:{navSkills:'Skills',navServices:'Services',navWorks:'Live Lab',navProcess:'Process',navContact:'Contact Us',badge:'Available for international projects — Worldwide, Remote',rolePre:'We architect & build',desc:'We are not just “design”. We are a complete product studio: <b>design, full-stack coding, expert debugging, custom widgets & tools, and AI agents</b> — from idea to launch and growth, at the level international markets demand.',ctaStart:'✈️ Start a Project',ctaWorks:'See Services',st1:'Years of experience',st2:'Projects',st3:'Clients',st4:'Countries',manifesto:'At senior level, the deliverable is not just a beautiful site; <span class="hl">it is a product that works flawlessly</span> — fast, secure, bug-free and ready to grow. That is exactly what we ship.',p1t:'Design + Code',p1d:'From design to the last line of code under one roof; no middlemen, no quality gap between “mockup” and “shipped”.',p2t:'Debugging & Tooling',p2d:'Deep fixes for complex bugs, rescuing stuck projects, and building custom widgets and tools fitted to your exact need.',p3t:'Automation & Growth',p3d:'AI agents that automate the work, and SEO that turns traffic into customers.',skH:'Senior <span class="grad">Skills</span>',skP:'Ten deep specialties, one team — mastery at the level international projects demand',skHtml:'Semantic architecture, accessibility and modern web standards',skCss:'Cinematic animation, motion design and stunning interfaces',skJs:'Complex apps, real-time interaction, web widgets & tools',skTs:'Type-safe JavaScript at scale; reliable, maintainable code',skAi:'LLM integration and building intelligent product features',skAgent:'Professional agent engineering: autonomous, multi-step, tool-calling agents',skUi:'Data-driven product design; experiences that move conversion',skSeo:'Technical SEO and content strategy for local & global markets',skPhp:'Custom backends & APIs, WordPress/WooCommerce and bespoke systems',skAstro:'Modern Astro framework; blazing-fast sites with island architecture and great SEO',svH:'Core <span class="grad">Services</span>',svP:'Not just design — design, coding, debugging, tooling and growth, all under one roof',c1t:'UI / UX Design',c1d:'World-class interfaces; beautiful, intuitive and built to convert visitors into customers.',c2t:'Full-Stack Coding',c2d:'Custom front-end and back-end with JavaScript and PHP — fast, secure and scalable, no off-the-shelf themes.',c3t:'Debugging & Fixes',c3d:'Deep diagnosis and repair of complex bugs; rescuing and optimizing projects stuck halfway.',c4t:'Widgets & Custom Tools',c4d:'Web widgets, plugins and bespoke tools — exactly the piece your product is missing.',c5t:'AI Agents',c5d:'Agent engineering for autonomous systems: support, content, data analysis and process automation.',c6t:'AI Integration',c6d:'Connecting language models to your product; chatbots and assistants branded for you.',c7t:'Online Store',c7d:'A custom-coded store with PHP & JavaScript, or on WordPress & WooCommerce — chosen per project; payment gateways, product SEO and a buying experience that sells.',c8t:'SEO & Global Growth',c8d:'Technical and content SEO that takes you to page one of Google in any market — and keeps you there.',wH:'Selected <span class="grad">Work</span>',wP:'Every project is a real business problem — and a measurable result',w1t:'Online Store',w1d:'Design and development of custom and WordPress e-commerce stores; payment gateways, product SEO and a checkout experience that sells.',w2t:'AI Agent Systems',w2d:'Autonomous agents automating daily operations — from customer replies and content to automatic reporting.',w3t:'Custom Widgets & Tools',w3d:'Web tools and custom widgets for teams and products — light, fast and precisely fit for purpose.',prH:'Our <span class="grad">Process</span>',prP:'Transparent, step by step, no surprises',s1t:'Discovery & Strategy',s1d:'We learn the business goal, audience and competitors precisely, and map the product roadmap.',s2t:'Experience Design',s2d:'Wireframe to final design; every page designed with a clear, defensible purpose.',s3t:'Build, Debug & AI',s3d:'Full-stack coding, widgets and smart agents, tested and reviewed at every step.',s4t:'Launch & Growth',s4d:'Release, SEO and continuous optimization; the product starts growing after launch.',qH:'Client <span class="grad">Words</span>',q1:'“Their level matches the foreign teams we had worked with before — in design quality and on-time delivery alike.”',q1w:'Product Manager — European startup',q2:'“The AI agent they built saves our team hours of repetitive work every week. Our best investment this year.”',q2w:'Operations Manager — online business',q3:'“After the redesign and SEO, our store got faster and its sales multiplied. One team, every specialty.”',q3w:'Manager — online store',fH:'Common <span class="grad">Questions</span>',f1q:'Do you take projects from other countries?',f1a:'Yes; we work fully remote with a transparent communication process, with client experience across several countries.',f2q:'Do you only design, or code as well?',f2a:'Both — and beyond: full-stack coding, debugging existing projects, building custom widgets and tools, and developing AI agents.',f3q:'How do we start?',f3a:'Just message us via the “Contact Us” button on Telegram; we will hear your idea and give a clear roadmap and estimate.',labH:'Live <span class="grad">Lab</span>',labP:'No claims, no fake portfolio — three real tools built by this studio. Try them right here, right now',d1t:'Gradient Studio',d1d:'Change colors & angle, get ready CSS',d2t:'Chat with an Agent',d2d:'A real agent answering here — ask away',d3t:'Mini Store',d3d:'A real cart with discount — try code SINKER10',copyBtn:'Copy CSS',sendBtn:'Send',totalLbl:'Total:',discBtn:'Apply discount',dbgH:'Live <span class="grad">Debug</span>',dbgP:'No fabricated quotes — watch a real project diagnosis execute step by step. Hit run',runBtn:'▶ Run diagnostics',footBig:'Your next project could be the one<br>the market talks about.',footP:'From a raw idea to a world-class product — we are with you.',footCta:'✈️ Contact us on Telegram — ',footSig:'Design, Coding & AI Agent Studio',navTerm:'Linux Terminal',termH:'A <span class="grad">Linux</span> Terminal',termP:'A demo terminal with the feel of real Linux — no download, no boot, nothing to break. It plays by itself, and you can try a few commands too.',bootBtn:'Boot Linux',restartBtn:'Restart',termStatus:'Playing automatically — or type a command yourself; try help.',termNote:'This is a demo, not real Linux — but its commands answer: try help, ls, whoami, uptime and clear.',replayBtn:'Replay',navCode:'Sample Code',codeH:'The Code <span class="grad">We Write</span>',codeP:'Instead of claims, look at what our shipped code looks like: clean, readable, testable. A simplified sample of the agent pattern we use in real projects.',navGame:'Play',gameH:'Play a Quick <span class="grad">Snake Game</span>',gameP:'Before you start your project, play a quick round — beat your record; your best score stays saved in your browser.',gameName:'Snake',scoreLbl:'Score',bestLbl:'Best',startBtn:'Start Game',gameHint:'Move with arrows, WASD or swipe — eat apples, don’t hit the wall or yourself!'}
+ar:{navSkills:'المهارات',navServices:'التخصصات',navWorks:'المختبر الحي',navProcess:'طريقة العمل',navContact:'تواصل معنا',badge:'متاحون لمشاريع دولية — Worldwide, Remote',rolePre:'نصمّم ونبني',desc:'لسنا مجرد «تصميم»؛ نحن استوديو منتجات متكامل: <b>تصميم، برمجة كاملة، تصحيح أخطاء متخصص، بناء ودجت وأدوات مخصصة، ووكلاء ذكاء اصطناعي</b> — من الفكرة إلى التنفيذ والنمو، بالمستوى الذي يطلبه السوق العالمي.',ctaStart:'✈️ ابدأ مشروعك',ctaWorks:'شاهد الخدمات',st1:'سنوات الخبرة',st2:'مشاريع',st3:'عملاء',st4:'دول',manifesto:'على المستوى الاحترافي، الناتج ليس موقعًا جميلًا فقط؛ <span class="hl">بل منتج يعمل بلا عيوب</span> — سريع وآمن وخالٍ من الأخطاء وجاهز للنمو. وهذا بالضبط ما نسلّمه.',p1t:'تصميم + برمجة',p1d:'من التصميم إلى آخر سطر برمجي تحت سقف واحد؛ بلا وسطاء وبلا فجوة بين «المخطط» و«التنفيذ».',p2t:'تصحيح وبناء أدوات',p2d:'إصلاح الأخطاء المعقدة، إنقاذ المشاريع المتعثرة، وبناء ودجت وأدوات مخصصة على مقاس احتياجك.',p3t:'أتمتة ونمو',p3d:'وكلاء ذكاء اصطناعي لأتمتة المهام، وسيو يحوّل الزيارات إلى عملاء.',skH:'مهارات <span class="grad">احترافية</span>',skP:'عشرة تخصصات عميقة، فريق واحد — إتقان بالمستوى الذي تطلبه المشاريع الدولية',skHtml:'بنية دلالية وإمكانية وصول ومعايير ويب حديثة',skCss:'حركات سينمائية وموشن ديزاين وواجهات مبهرة',skJs:'تطبيقات معقدة وتفاعل لحظي وودجت وأدوات ويب',skTs:'جافاسكريبت آمنة الأنواع على نطاق واسع؛ كود موثوق وقابل للصيانة',skAi:'دمج نماذج اللغة وبناء مزايا منتجات ذكية',skAgent:'كتابة وكلاء باحتراف: مستقلّون ومتعددو الخطوات ويدعمون استدعاء الأدوات',skUi:'تصميم منتج قائم على البيانات؛ تجربة ترفع معدل التحويل',skSeo:'سيو تقني واستراتيجية محتوى للسوق المحلي والعالمي',skPhp:'باك-إند وواجهات برمجة مخصصة، ووردبريس/ووكومرس وأنظمة خاصة',skAstro:'إطار أسترو الحديث؛ مواقع فائقة السرعة ببنية الجزر وسيو ممتاز',svH:'التخصصات <span class="grad">الأساسية</span>',svP:'ليس تصميمًا فقط — تصميم وبرمجة وتصحيح وبناء أدوات ونمو، كلها تحت سقف واحد',c1t:'تصميم UI / UX',c1d:'واجهات بمعايير عالمية؛ جميلة وبديهية ومصممة لتحويل الزائر إلى عميل.',c2t:'برمجة كاملة (Full-Stack)',c2d:'واجهة وخادم مخصصان بـ JavaScript وPHP — سريعة وآمنة وقابلة للتوسع، بلا قوالب جاهزة.',c3t:'تصحيح الأخطاء (Debugging)',c3d:'تشخيص عميق وإصلاح للأخطاء المعقدة؛ إنقاذ وتحسين المشاريع المتوقفة في منتصف الطريق.',c4t:'بناء الودجت والأدوات',c4d:'ودجت وإضافات وأدوات ويب مخصصة — بالضبط ما ينقص منتجك.',c5t:'وكلاء الذكاء الاصطناعي',c5d:'كتابة أنظمة وكلاء مستقلة: دعم عملاء، إنتاج محتوى، تحليل بيانات وأتمتة عمليات.',c6t:'دمج الذكاء الاصطناعي',c6d:'ربط نماذج اللغة بمنتجك؛ روبوت محادثة ومساعد ذكي خاص بعلامتك.',c7t:'متجر إلكتروني',c7d:'متجر مخصص مبرمج بـ PHP وJavaScript، أو على ووردبريس وووكومرس — الخيار حسب حاجة المشروع؛ بوابات دفع وسيو منتجات وتجربة شراء سلسة.',c8t:'سيو ونمو دولي',c8d:'سيو تقني ومحتوى يضعك في الصفحة الأولى من جوجل في أي سوق ويثبّتك هناك.',wH:'أعمال <span class="grad">مختارة</span>',wP:'كل مشروع مسألة عمل حقيقية — ونتيجة قابلة للقياس',w1t:'متجر إلكتروني',w1d:'تصميم وتطوير متاجر إلكترونية مخصصة وووردبريس؛ بوابات دفع وسيو منتجات وتجربة شراء تبيع.',w2t:'نظام وكلاء أذكياء',w2d:'وكلاء مستقلّون لأتمتة العمليات اليومية — من الرد على العملاء وإنتاج المحتوى إلى التقارير التلقائية.',w3t:'ودجت وأدوات مخصصة',w3d:'أدوات ويب وودجت خاصة للفرق والمنتجات — خفيفة وسريعة وعلى مقاس الحاجة تمامًا.',prH:'طريقة <span class="grad">العمل</span>',prP:'شفافة، خطوة بخطوة، بلا مفاجآت',s1t:'اكتشاف واستراتيجية',s1d:'نفهم هدف العمل والجمهور والمنافسين بدقة ونرسم خارطة طريق المنتج.',s2t:'تصميم التجربة',s2d:'من الوايرفريم إلى التصميم النهائي؛ كل صفحة بهدف واضح وقابل للدفاع.',s3t:'تطوير وتصحيح وذكاء اصطناعي',s3d:'برمجة كاملة وبناء ودجت ووكلاء أذكياء، مع اختبار ومراجعة في كل مرحلة.',s4t:'إطلاق ونمو',s4d:'نشر وسيو وتحسين مستمر؛ المنتج بعد الإطلاق يبدأ النمو فعليًا.',qH:'ماذا يقول <span class="grad">العملاء</span>',q1:'«مستوى عملهم يوازي الفرق الأجنبية التي عملنا معها من قبل؛ في التصميم وفي الالتزام بالمواعيد معًا.»',q1w:'مدير منتج — شركة ناشئة أوروبية',q2:'«وكيل الذكاء الاصطناعي الذي بنوه يوفّر على فريقنا ساعات من العمل المتكرر كل أسبوع. أفضل استثمار لهذا العام.»',q2w:'مدير عمليات — عمل إلكتروني',q3:'«متجرنا بعد إعادة التصميم والسيو صار أسرع وتضاعفت مبيعاته. فريق واحد، كل التخصصات.»',q3w:'مدير — متجر إلكتروني',fH:'أسئلة <span class="grad">شائعة</span>',f1q:'هل تقبلون مشاريع خارج بلدكم؟',f1a:'نعم؛ نعمل عن بُعد بالكامل وبعملية تواصل شفافة، ولدينا خبرة مع عملاء في عدة دول.',f2q:'هل تقومون بالتصميم فقط أم بالبرمجة أيضًا؟',f2a:'كلاهما — وأكثر: برمجة كاملة، تصحيح أخطاء المشاريع الحالية، بناء ودجت وأدوات مخصصة، وتطوير وكلاء ذكاء اصطناعي.',f3q:'من أين نبدأ؟',f3a:'يكفي أن تراسلنا عبر زر «تواصل معنا» في تيليجرام؛ نسمع فكرتك ونعطيك خارطة طريق وتقديرًا شفافًا.',labH:'المختبر <span class="grad">الحيّ</span>',labP:'بدل الادعاءات والأعمال المزيّفة، ثلاث أدوات حقيقية من هذا الاستوديو — جرّبها هنا الآن',d1t:'استوديو التدرّجات',d1d:'غيّر الألوان والزاوية واحصل على CSS جاهز',d2t:'محادثة مع وكيل',d2d:'وكيل حقيقي يجيبك هنا — اسأل',d3t:'متجر مصغّر',d3d:'سلّة شراء حقيقية مع خصم — جرّب كود SINKER10',copyBtn:'نسخ CSS',sendBtn:'إرسال',totalLbl:'المجموع:',discBtn:'تطبيق الخصم',dbgH:'تصحيح <span class="grad">حيّ</span>',dbgP:'بدل أقوال مزيّفة، شاهد كيف يُنفَّذ تشخيص مشروع حقيقي خطوة بخطوة — اضغط الزر',runBtn:'▶ تشغيل التشخيص',footBig:'مشروعك القادم قد يكون العمل<br>الذي يتحدث عنه السوق.',footP:'من فكرة خام إلى منتج بمعايير عالمية — نحن بجانبك.',footCta:'✈️ تواصل معنا على تيليجرام — ',footSig:'استوديو تصميم وبرمجة ووكلاء ذكاء اصطناعي',navTerm:'طرفية لينكس',termH:'طرفية <span class="grad">لينكس</span>',termP:'طرفية عرض بمذاق لينكس الحقيقي — بلا تنزيل وبلا إقلاع وبلا أعطال. تعمل تلقائيًا، ويمكنك أنت أيضًا تجربة بعض الأوامر.',bootBtn:'تشغيل لينكس',restartBtn:'إعادة تشغيل',termStatus:'تعمل تلقائيًا — أو اكتب أمرًا بنفسك؛ جرّب help.',termNote:'هذا عرض تمثيلي وليس لينكس حقيقيًا — لكن أوامره تجيب: جرّب help وls وwhoami وuptime وclear.',replayBtn:'إعادة التشغيل',navCode:'نموذج كود',codeH:'الكود <span class="grad">الذي نكتبه</span>',codeP:'بدل الادعاءات، انظر إلى شكل الكود الذي نسلّمه: نظيف وواضح وقابل للاختبار. هذا نموذج مبسّط من نمط الوكلاء الذي نستخدمه في المشاريع الحقيقية.',navGame:'لعبة',gameH:'العب <span class="grad">لعبة الثعبان</span>',gameP:'قبل أن تبدأ مشروعك، العب جولة سريعة — حطّم رقمك القياسي، فأفضل نتيجة تبقى محفوظة في متصفحك.',gameName:'لعبة الثعبان',scoreLbl:'النقاط',bestLbl:'الأفضل',levelLbl:'المستوى',startBtn:'ابدأ اللعب',gameHint:'تحرّك بالأسهم أو WASD أو المسح — P للإيقاف المؤقت وEnter لإعادة البدء؛ التفاحة الذهبية ٥٠ نقطة!'},
+en:{navSkills:'Skills',navServices:'Services',navWorks:'Live Lab',navProcess:'Process',navContact:'Contact Us',badge:'Available for international projects — Worldwide, Remote',rolePre:'We architect & build',desc:'We are not just “design”. We are a complete product studio: <b>design, full-stack coding, expert debugging, custom widgets & tools, and AI agents</b> — from idea to launch and growth, at the level international markets demand.',ctaStart:'✈️ Start a Project',ctaWorks:'See Services',st1:'Years of experience',st2:'Projects',st3:'Clients',st4:'Countries',manifesto:'At senior level, the deliverable is not just a beautiful site; <span class="hl">it is a product that works flawlessly</span> — fast, secure, bug-free and ready to grow. That is exactly what we ship.',p1t:'Design + Code',p1d:'From design to the last line of code under one roof; no middlemen, no quality gap between “mockup” and “shipped”.',p2t:'Debugging & Tooling',p2d:'Deep fixes for complex bugs, rescuing stuck projects, and building custom widgets and tools fitted to your exact need.',p3t:'Automation & Growth',p3d:'AI agents that automate the work, and SEO that turns traffic into customers.',skH:'Senior <span class="grad">Skills</span>',skP:'Ten deep specialties, one team — mastery at the level international projects demand',skHtml:'Semantic architecture, accessibility and modern web standards',skCss:'Cinematic animation, motion design and stunning interfaces',skJs:'Complex apps, real-time interaction, web widgets & tools',skTs:'Type-safe JavaScript at scale; reliable, maintainable code',skAi:'LLM integration and building intelligent product features',skAgent:'Professional agent engineering: autonomous, multi-step, tool-calling agents',skUi:'Data-driven product design; experiences that move conversion',skSeo:'Technical SEO and content strategy for local & global markets',skPhp:'Custom backends & APIs, WordPress/WooCommerce and bespoke systems',skAstro:'Modern Astro framework; blazing-fast sites with island architecture and great SEO',svH:'Core <span class="grad">Services</span>',svP:'Not just design — design, coding, debugging, tooling and growth, all under one roof',c1t:'UI / UX Design',c1d:'World-class interfaces; beautiful, intuitive and built to convert visitors into customers.',c2t:'Full-Stack Coding',c2d:'Custom front-end and back-end with JavaScript and PHP — fast, secure and scalable, no off-the-shelf themes.',c3t:'Debugging & Fixes',c3d:'Deep diagnosis and repair of complex bugs; rescuing and optimizing projects stuck halfway.',c4t:'Widgets & Custom Tools',c4d:'Web widgets, plugins and bespoke tools — exactly the piece your product is missing.',c5t:'AI Agents',c5d:'Agent engineering for autonomous systems: support, content, data analysis and process automation.',c6t:'AI Integration',c6d:'Connecting language models to your product; chatbots and assistants branded for you.',c7t:'Online Store',c7d:'A custom-coded store with PHP & JavaScript, or on WordPress & WooCommerce — chosen per project; payment gateways, product SEO and a buying experience that sells.',c8t:'SEO & Global Growth',c8d:'Technical and content SEO that takes you to page one of Google in any market — and keeps you there.',wH:'Selected <span class="grad">Work</span>',wP:'Every project is a real business problem — and a measurable result',w1t:'Online Store',w1d:'Design and development of custom and WordPress e-commerce stores; payment gateways, product SEO and a checkout experience that sells.',w2t:'AI Agent Systems',w2d:'Autonomous agents automating daily operations — from customer replies and content to automatic reporting.',w3t:'Custom Widgets & Tools',w3d:'Web tools and custom widgets for teams and products — light, fast and precisely fit for purpose.',prH:'Our <span class="grad">Process</span>',prP:'Transparent, step by step, no surprises',s1t:'Discovery & Strategy',s1d:'We learn the business goal, audience and competitors precisely, and map the product roadmap.',s2t:'Experience Design',s2d:'Wireframe to final design; every page designed with a clear, defensible purpose.',s3t:'Build, Debug & AI',s3d:'Full-stack coding, widgets and smart agents, tested and reviewed at every step.',s4t:'Launch & Growth',s4d:'Release, SEO and continuous optimization; the product starts growing after launch.',qH:'Client <span class="grad">Words</span>',q1:'“Their level matches the foreign teams we had worked with before — in design quality and on-time delivery alike.”',q1w:'Product Manager — European startup',q2:'“The AI agent they built saves our team hours of repetitive work every week. Our best investment this year.”',q2w:'Operations Manager — online business',q3:'“After the redesign and SEO, our store got faster and its sales multiplied. One team, every specialty.”',q3w:'Manager — online store',fH:'Common <span class="grad">Questions</span>',f1q:'Do you take projects from other countries?',f1a:'Yes; we work fully remote with a transparent communication process, with client experience across several countries.',f2q:'Do you only design, or code as well?',f2a:'Both — and beyond: full-stack coding, debugging existing projects, building custom widgets and tools, and developing AI agents.',f3q:'How do we start?',f3a:'Just message us via the “Contact Us” button on Telegram; we will hear your idea and give a clear roadmap and estimate.',labH:'Live <span class="grad">Lab</span>',labP:'No claims, no fake portfolio — three real tools built by this studio. Try them right here, right now',d1t:'Gradient Studio',d1d:'Change colors & angle, get ready CSS',d2t:'Chat with an Agent',d2d:'A real agent answering here — ask away',d3t:'Mini Store',d3d:'A real cart with discount — try code SINKER10',copyBtn:'Copy CSS',sendBtn:'Send',totalLbl:'Total:',discBtn:'Apply discount',dbgH:'Live <span class="grad">Debug</span>',dbgP:'No fabricated quotes — watch a real project diagnosis execute step by step. Hit run',runBtn:'▶ Run diagnostics',footBig:'Your next project could be the one<br>the market talks about.',footP:'From a raw idea to a world-class product — we are with you.',footCta:'✈️ Contact us on Telegram — ',footSig:'Design, Coding & AI Agent Studio',navTerm:'Linux Terminal',termH:'A <span class="grad">Linux</span> Terminal',termP:'A demo terminal with the feel of real Linux — no download, no boot, nothing to break. It plays by itself, and you can try a few commands too.',bootBtn:'Boot Linux',restartBtn:'Restart',termStatus:'Playing automatically — or type a command yourself; try help.',termNote:'This is a demo, not real Linux — but its commands answer: try help, ls, whoami, uptime and clear.',replayBtn:'Replay',navCode:'Sample Code',codeH:'The Code <span class="grad">We Write</span>',codeP:'Instead of claims, look at what our shipped code looks like: clean, readable, testable. A simplified sample of the agent pattern we use in real projects.',navGame:'Play',gameH:'Play a Quick <span class="grad">Snake Game</span>',gameP:'Before you start your project, play a quick round — beat your record; your best score stays saved in your browser.',gameName:'Snake',scoreLbl:'Score',bestLbl:'Best',levelLbl:'Level',startBtn:'Start Game',gameHint:'Move with arrows, WASD or swipe — P pauses, Enter restarts; the golden apple is worth 50!'}
 };
 function setLang(l){
  curLang=l;const d=l==='fa'?FA:L[l];if(!d)return;
@@ -367,35 +386,52 @@ apply(document.documentElement.dataset.theme||'light');
 })();
 </script>
 <script>
-// Snake game — keyboard, swipe and on-screen d-pad
-// v8: glowing snake with eyes, pulsing apple, eat particles, direction fixes
+// Snake game — v9 senior edition: direction queue, first-key steering, levels,
+// golden apples, obstacles, pause, sounds, game-over overlay
 (function(){
-var cv=document.getElementById('snake');if(!cv)return;
-var ctx=cv.getContext('2d');
+var cv=document.getElementById('snake'),ctx=cv.getContext('2d');
 var N=20,S=20,W=400;
-var snake,dir,next,food,score,best,loop,alive,newBest;
-var scoreEl=document.getElementById('score'),bestEl=document.getElementById('best');
-var L=(typeof curLang!=='undefined'&&curLang)||'fa';
-var T={fa:{start:'برای شروع، دکمه را بزن یا یک جهت را انتخاب کن',over:'بازی تمام شد!',again:function(s){return 'امتیاز: '+s+' — دوباره بازی کن';},newBest:'🏆 رکورد جدید!'},
-en:{start:'Press start — or just pick a direction',over:'Game over!',again:function(s){return 'Score: '+s+' — play again';},newBest:'🏆 New best!'},
-ar:{start:'اضغط ابدأ — أو اختر اتجاهًا',over:'انتهت اللعبة!',again:function(s){return 'النقاط: '+s+' — العب مجددًا';},newBest:'🏆 رقم قياسي جديد!'}}[L]||{start:'برای شروع، دکمه را بزن یا یک جهت را انتخاب کن',over:'بازی تمام شد!',again:function(s){return 'امتیاز: '+s+' — دوباره بازی کن';},newBest:'🏆 رکورد جدید!'};
+var snake=[],dir={x:1,y:0},queue=[],food={x:14,y:10,gold:false},goldBorn=0;
+var obstacles=[],score=0,best=0,level=1,apples=0,loop=null,state='idle';
+var newBest=false,parts=[],floats=[],t0=Date.now(),raf=0,muted=false;
+var scoreEl=document.getElementById('score'),bestEl=document.getElementById('best'),levelEl=document.getElementById('level');
+var ov=document.getElementById('gameOverlay'),ovTitle=document.getElementById('ovTitle'),ovSub=document.getElementById('ovSub'),ovStats=document.getElementById('ovStats'),ovBtn=document.getElementById('ovBtn');
+var startBtn=document.getElementById('startBtn'),pauseBtn=document.getElementById('pauseBtn'),soundBtn=document.getElementById('soundBtn');
+var STR={fa:{start:'ماربازی',startSub:'برای شروع، یک جهت را انتخاب کن یا دکمه را بزن — سیب بخور، به دیوار و خودت نزن!',pause:'مکث',pauseSub:'برای ادامه P یا Space را بزن',over:'بازی تمام شد!',again:'دوباره بازی کن',resume:'ادامه',levelUp:'سطح',newBest:'🏆 رکورد جدید!',startBtn:'شروع بازی',pauseBtn:'مکث',score:'امتیاز',best:'بهترین',level:'سطح'},
+en:{start:'Snake',startSub:'Pick a direction or press Start — eat apples, avoid the walls and yourself!',pause:'Paused',pauseSub:'Press P or Space to resume',over:'Game over!',again:'Play again',resume:'Resume',levelUp:'Level',newBest:'🏆 New best!',startBtn:'Start game',pauseBtn:'Pause',score:'Score',best:'Best',level:'Level'},
+ar:{start:'لعبة الثعبان',startSub:'اختر اتجاهًا أو اضغط ابدأ — كل التفاح وتجنّب الجدران ونفسك!',pause:'إيقاف مؤقت',pauseSub:'اضغط P أو مسافة للمتابعة',over:'انتهت اللعبة!',again:'العب مجددًا',resume:'متابعة',levelUp:'مستوى',newBest:'🏆 رقم قياسي جديد!',startBtn:'ابدأ اللعب',pauseBtn:'إيقاف',score:'النقاط',best:'الأفضل',level:'المستوى'}};
+function S(){try{return STR[curLang]||STR.fa;}catch(e){return STR.fa;}}
 try{best=+(localStorage.getItem('sd-snake-best')||0);}catch(e){best=0;}
-var parts=[],floats=[],t0=Date.now(),raf=0;
-function updateScore(){scoreEl.textContent=score;bestEl.textContent=best;}
-function placeFood(){while(true){var f={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)};var clash=false;for(var i=0;i<snake.length;i++){if(snake[i].x===f.x&&snake[i].y===f.y){clash=true;break;}}if(!clash){food=f;return;}}}
+try{muted=localStorage.getItem('sd-snake-sound')==='off';}catch(e){}
+var AC=null;
+function beep(f,d,type,g){if(muted)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();var o=AC.createOscillator(),gn=AC.createGain();o.type=type||'square';o.frequency.value=f;gn.gain.value=g||.04;o.connect(gn);gn.connect(AC.destination);o.start();gn.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+(d||.07));o.stop(AC.currentTime+(d||.07));}catch(e){}}
+function sEat(){beep(660,.07,'square',.04);setTimeout(function(){beep(880,.07,'square',.04);},60);}
+function sGold(){[523,659,784,1046].forEach(function(f,i){setTimeout(function(){beep(f,.1,'triangle',.05);},i*70);});}
+function sOver(){beep(220,.22,'sawtooth',.05);setTimeout(function(){beep(147,.3,'sawtooth',.05);},180);}
+function sLevel(){beep(523,.09,'triangle',.05);setTimeout(function(){beep(784,.12,'triangle',.05);},90);}
+function speed(){return Math.max(90,170-(level-1)*12);}
+function updateScore(){scoreEl.textContent=score;bestEl.textContent=best;levelEl.textContent=level;}
+function onSnake(x,y){for(var i=0;i<snake.length;i++){if(snake[i].x===x&&snake[i].y===y)return true;}return false;}
+function onObs(x,y){for(var i=0;i<obstacles.length;i++){if(obstacles[i].x===x&&obstacles[i].y===y)return true;}return false;}
+function placeFood(){var guard=0;while(guard++<500){var f={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)};if(!onSnake(f.x,f.y)&&!onObs(f.x,f.y)){f.gold=(apples%5===4);food=f;goldBorn=Date.now();return;}}food={x:2,y:2,gold:false};goldBorn=Date.now();}
+function buildObstacles(){obstacles=[];if(level<3)return;var n=Math.min(3+(level-3),6),guard=0;while(obstacles.length<n&&guard++<300){var o={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)};var dx=Math.abs(o.x-snake[0].x),dy=Math.abs(o.y-snake[0].y);if(dx<=3&&dy<=3)continue;if(onSnake(o.x,o.y)||onObs(o.x,o.y))continue;if(food.x===o.x&&food.y===o.y)continue;obstacles.push(o);}}
 function rr(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect){ctx.roundRect(x,y,w,h,r);}else{ctx.rect(x,y,w,h);}ctx.fill();}
-function draw(msg1,msg2){
+function draw(){
  var t=(Date.now()-t0)/1000;
  ctx.fillStyle='#0b1f14';ctx.fillRect(0,0,W,W);
  for(var gy=0;gy<N;gy++){for(var gx=0;gx<N;gx++){if((gx+gy)%2===0){ctx.fillStyle='rgba(255,255,255,.022)';ctx.fillRect(gx*S,gy*S,S,S);}}}
  ctx.fillStyle='rgba(255,255,255,.05)';
  for(var g=1;g<N;g++){ctx.fillRect(g*S,0,1,W);ctx.fillRect(0,g*S,W,1);}
- // apple — pulsing radial gradient + leaf
+ // obstacles
+ for(var oi=0;oi<obstacles.length;oi++){var ob=obstacles[oi];ctx.fillStyle='#3b4a5e';rr(ob.x*S+2,ob.y*S+2,S-4,S-4,4);ctx.fillStyle='rgba(255,255,255,.14)';ctx.fillRect(ob.x*S+4,ob.y*S+3,S-8,2);}
+ // apple — normal or golden (with a shrinking countdown ring)
  var ax=food.x*S+S/2,ay=food.y*S+S/2,ar=S/2-2+Math.sin(t*4)*1.4;
  var ag=ctx.createRadialGradient(ax-3,ay-3,1,ax,ay,ar+2);
- ag.addColorStop(0,'#ff9fb0');ag.addColorStop(.55,'#ff5c7a');ag.addColorStop(1,'#e63e5f');
- ctx.save();ctx.shadowColor='rgba(255,92,122,.8)';ctx.shadowBlur=14;
+ if(food.gold){ag.addColorStop(0,'#fff3b0');ag.addColorStop(.55,'#ffd60a');ag.addColorStop(1,'#f59e0b');}
+ else{ag.addColorStop(0,'#ff9fb0');ag.addColorStop(.55,'#ff5c7a');ag.addColorStop(1,'#e63e5f');}
+ ctx.save();ctx.shadowColor=food.gold?'rgba(255,214,10,.9)':'rgba(255,92,122,.8)';ctx.shadowBlur=14;
  ctx.fillStyle=ag;ctx.beginPath();ctx.arc(ax,ay,Math.max(4,ar),0,7);ctx.fill();ctx.restore();
+ if(food.gold){var rem=Math.max(0,1-(Date.now()-goldBorn)/6000);ctx.strokeStyle='rgba(255,214,10,.9)';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(ax,ay,ar+6,-Math.PI/2,-Math.PI/2+Math.PI*2*rem);ctx.stroke();}
  ctx.strokeStyle='#2ee06f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ax,ay-ar+2);ctx.lineTo(ax+3,ay-ar-3);ctx.stroke();
  ctx.fillStyle='#2ee06f';ctx.beginPath();ctx.ellipse(ax+6,ay-ar-2,4,2.4,-.5,0,7);ctx.fill();
  // snake — rounded glowing segments, head with eyes that look where it goes
@@ -419,33 +455,45 @@ function draw(msg1,msg2){
  // eat particles
  for(var p=0;p<parts.length;p++){var pt=parts[p];ctx.globalAlpha=Math.max(0,pt.life);ctx.fillStyle=pt.c;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.r,0,7);ctx.fill();}
  ctx.globalAlpha=1;
- // floating +10
+ // floating scores
  ctx.textAlign='center';ctx.font='bold 15px Vazirmatn, sans-serif';
  for(var f=0;f<floats.length;f++){var fl=floats[f];ctx.globalAlpha=Math.max(0,fl.life);ctx.fillStyle='#ffe066';ctx.fillText(fl.txt,fl.x,fl.y);}
  ctx.globalAlpha=1;
- if(msg1){ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,0,W,W);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 22px Vazirmatn, sans-serif';ctx.fillText(msg1,W/2,180);if(msg2){ctx.font='16px Vazirmatn, sans-serif';ctx.fillText(msg2,W/2,212);}if(newBest&&msg1===T.over){ctx.font='bold 16px Vazirmatn, sans-serif';ctx.fillStyle='#ffe066';ctx.fillText(T.newBest,W/2,244);}}
 }
-function burst(x,y){for(var i=0;i<12;i++){var a=Math.random()*Math.PI*2,sp=1+Math.random()*2.4;parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,r:2+Math.random()*2.5,life:1,c:Math.random()<.5?'#ffe066':'#7df9c8'});}}
-function reset(){snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir={x:1,y:0};next={x:1,y:0};score=0;newBest=false;parts=[];floats=[];placeFood();updateScore();}
+function burst(x,y,gold){for(var i=0;i<14;i++){var a=Math.random()*Math.PI*2,sp=1+Math.random()*2.4;parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,r:2+Math.random()*2.5,life:1,c:gold?'#ffd60a':(Math.random()<.5?'#ffe066':'#7df9c8')});}}
+function reset(d){var dd=d||{x:1,y:0};snake=[{x:10,y:10},{x:10-dd.x,y:10-dd.y},{x:10-2*dd.x,y:10-2*dd.y}];dir={x:dd.x,y:dd.y};queue=[];score=0;apples=0;level=1;newBest=false;parts=[];floats=[];obstacles=[];placeFood();updateScore();}
+function refreshButtons(){if(state==='idle'){startBtn.textContent=S().startBtn;ovBtn.textContent=S().startBtn;pauseBtn.disabled=true;pauseBtn.textContent='⏸';}else if(state==='run'){startBtn.textContent=S().pauseBtn;ovBtn.textContent=S().resume;pauseBtn.disabled=false;pauseBtn.textContent='⏸';}else if(state==='pause'){startBtn.textContent=S().resume;ovBtn.textContent=S().resume;pauseBtn.disabled=false;pauseBtn.textContent='▶';}else{startBtn.textContent=S().again;ovBtn.textContent=S().again;pauseBtn.disabled=true;pauseBtn.textContent='⏸';}}
+function showOverlay(kind){if(kind==='start'){ovTitle.textContent=S().start;ovSub.textContent=S().startSub;ovStats.textContent='';}else if(kind==='pause'){ovTitle.textContent=S().pause;ovSub.textContent=S().pauseSub;ovStats.textContent=S().score+': '+score+' · '+S().best+': '+best+' · '+S().level+': '+level;}else{ovTitle.textContent=S().over;ovSub.textContent='';ovStats.textContent=S().score+': '+score+' · '+S().best+': '+best+' · '+S().level+': '+level+(newBest?' · '+S().newBest:'');}ov.hidden=false;refreshButtons();}
+function hideOverlay(){ov.hidden=true;refreshButtons();}
+function startWith(d){if(loop)clearInterval(loop);reset(d);state='run';loop=setInterval(step,speed());hideOverlay();draw();startRender();}
+function pause(){if(state!=='run')return;state='pause';clearInterval(loop);loop=null;showOverlay('pause');draw();}
+function resume(){if(state!=='pause')return;state='run';loop=setInterval(step,speed());hideOverlay();startRender();}
+function toggleAction(){if(state==='idle')startWith(null);else if(state==='run')pause();else if(state==='pause')resume();else if(state==='over')startWith(null);}
+function gameOver(){clearInterval(loop);loop=null;state='over';sOver();draw();showOverlay('over');}
 function step(){
- dir=next;
+ if(queue.length)dir=queue.shift();
+ if(food.gold&&Date.now()-goldBorn>6000)placeFood();
  var head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
- var dead=head.x<0||head.y<0||head.x>=N||head.y>=N;
+ var dead=head.x<0||head.y<0||head.x>=N||head.y>=N||onObs(head.x,head.y);
  if(!dead){for(var i=0;i<snake.length;i++){if(snake[i].x===head.x&&snake[i].y===head.y){dead=true;break;}}}
- if(dead){clearInterval(loop);loop=0;alive=false;stopRender();draw(T.over,T.again(score));return;}
+ if(dead){gameOver();return;}
  snake.unshift(head);
  if(head.x===food.x&&head.y===food.y){
-   score+=10;
+   var pts=food.gold?50:10,gold=food.gold;
+   score+=pts;apples++;
    if(score>best){best=score;newBest=true;try{localStorage.setItem('sd-snake-best',best);}catch(e){}}
-   burst(head.x*S+S/2,head.y*S+S/2);
-   floats.push({txt:'+10',x:head.x*S+S/2,y:head.y*S,life:1});
+   burst(head.x*S+S/2,head.y*S+S/2,gold);
+   floats.push({txt:'+'+pts,x:head.x*S+S/2,y:head.y*S,life:1});
+   if(gold)sGold();else sEat();
    placeFood();
-   clearInterval(loop);loop=setInterval(step,Math.max(70,140-score));
+   var nl=1+Math.floor(apples/5);
+   if(nl>level){level=nl;buildObstacles();sLevel();floats.push({txt:S().levelUp+' '+level,x:W/2,y:60,life:1});}
+   clearInterval(loop);loop=setInterval(step,speed());
  }else{snake.pop();}
  draw();updateScore();
 }
 function render(){
- if(!alive&&!parts.length&&!floats.length){raf=0;return;}
+ if(state!=='run'&&!parts.length&&!floats.length){raf=0;return;}
  for(var i=parts.length-1;i>=0;i--){var p=parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.12;p.life-=.03;if(p.life<=0)parts.splice(i,1);}
  for(var j=floats.length-1;j>=0;j--){var f=floats[j];f.y-=1.1;f.life-=.02;if(f.life<=0)floats.splice(j,1);}
  draw();
@@ -453,24 +501,38 @@ function render(){
 }
 function startRender(){if(!raf)raf=requestAnimationFrame(render);}
 function stopRender(){if(raf){cancelAnimationFrame(raf);raf=0;}}
-function start(){if(loop)clearInterval(loop);reset();alive=true;loop=setInterval(step,140);draw();startRender();}
 function gameInView(){var r=cv.getBoundingClientRect();return r.bottom>0&&r.top<window.innerHeight;}
 function setDir(x,y){
- if(!alive){start();}
- // block a 180-degree turn against the queued direction, not just the current
- // one — two quick turns in one tick must not let the snake reverse into itself
- if(x===-next.x&&y===-next.y)return;
- if(x===next.x&&y===next.y)return;
- next={x:x,y:y};
+ if(state==='over')return;
+ var last=queue.length?queue[queue.length-1]:dir;
+ if(x===-last.x&&y===-last.y)return;
+ if(x===last.x&&y===last.y)return;
+ if(queue.length<3)queue.push({x:x,y:y});
+ if(state==='idle')startWith({x:x,y:y});
 }
-document.getElementById('startBtn').addEventListener('click',start);
+startBtn.addEventListener('click',function(){toggleAction();this.blur();});
+ovBtn.addEventListener('click',function(){toggleAction();this.blur();});
+pauseBtn.addEventListener('click',function(){if(state==='run')pause();else if(state==='pause')resume();this.blur();});
+soundBtn.addEventListener('click',function(){muted=!muted;try{localStorage.setItem('sd-snake-sound',muted?'off':'on');}catch(e){}soundBtn.textContent=muted?'🔇':'🔊';this.blur();});
+soundBtn.textContent=muted?'🔇':'🔊';
 var keys={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],w:[0,-1],s:[0,1],a:[-1,0],d:[1,0],W:[0,-1],S:[0,1],A:[-1,0],D:[1,0]};
 document.addEventListener('keydown',function(e){
  var tg=e.target;if(tg&&(tg.tagName==='INPUT'||tg.tagName==='TEXTAREA'||tg.isContentEditable))return;
- var k=keys[e.key];if(!k)return;
- if(!alive&&!gameInView())return;
- e.preventDefault();
- setDir(k[0],k[1]);
+ var k=keys[e.key];
+ if(k){
+   if(state==='idle'&&!gameInView())return;
+   e.preventDefault();
+   if(state==='over')return;
+   setDir(k[0],k[1]);
+   return;
+ }
+ if(e.key===' '||e.key==='p'||e.key==='P'||e.key==='Escape'){
+   if(state==='run'||state==='pause'){e.preventDefault();toggleAction();}
+   return;
+ }
+ if(e.key==='Enter'){
+   if(state==='idle'||state==='over'){e.preventDefault();startWith(null);}
+ }
 });
 document.querySelectorAll('.dpad button').forEach(function(b){
  b.addEventListener('pointerdown',function(ev){ev.preventDefault();var p=b.dataset.dir.split(',');setDir(+p[0],+p[1]);});
@@ -482,7 +544,10 @@ cv.addEventListener('touchend',function(e){
  if(Math.abs(dx)<20&&Math.abs(dy)<20)return;
  if(Math.abs(dx)>Math.abs(dy)){setDir(dx>0?1:-1,0);}else{setDir(0,dy>0?1:-1);}
 },{passive:true});
-reset();draw(T.start,'');
+cv.addEventListener('click',function(){try{cv.focus();}catch(e){}});
+if('IntersectionObserver' in window){new IntersectionObserver(function(es){es.forEach(function(en){if(!en.isIntersecting)pause();});},{threshold:0}).observe(cv);}
+document.querySelectorAll('.langbar button').forEach(function(b){b.addEventListener('click',function(){setTimeout(function(){if(state!=='run')showOverlay(state==='pause'?'pause':state==='over'?'over':'start');refreshButtons();},0);});});
+reset(null);draw();showOverlay('start');
 })();
 </script>
 </body>
